@@ -1,18 +1,40 @@
-@import url('https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap');
 @import "tailwindcss";
 
-:root { color-scheme: light; }
+@theme inline {
+  --font-display: var(--font-display);
+  --font-sans: var(--font-sans);
+  --color-brand: #087e70;
+  --color-brand-deep: #06685e;
+  --color-ink: #193c36;
+  --color-muted: #5f786e;
+  --color-mint: #f5faf8;
+  --color-amber: #c88b24;
+}
+
+:root {
+  color-scheme: light;
+  --brand: #087e70;
+  --brand-deep: #06685e;
+  --ink: #193c36;
+  --muted: #5f786e;
+  --mint: #f5faf8;
+  --amber: #c88b24;
+}
+
 html { scroll-behavior: smooth; }
-body { margin: 0; font-family: 'Manrope', Arial, sans-serif; background: #f8fbf9; }
+body { margin: 0; font-family: var(--font-sans), Arial, sans-serif; background: var(--mint); color: var(--ink); line-height: 1.65; }
+h1, h2, h3 { font-family: var(--font-display), Arial, sans-serif; letter-spacing: -0.02em; line-height: 1.1; }
 button, a, input { -webkit-tap-highlight-color: transparent; }
 button { cursor: pointer; }
-a:focus-visible,button:focus-visible,input:focus-visible { outline: 3px solid #16a085; outline-offset: 3px; }
+a:focus-visible,button:focus-visible,input:focus-visible { outline: 3px solid var(--brand); outline-offset: 3px; }
 .nav-link { transition: color .2s; }
-.nav-link:hover { color: #087e70; }
+.nav-link:hover { color: var(--brand); }
 .hero-mesh { background: radial-gradient(ellipse 50% 55% at 93% 25%,#d6f1e5 0%,transparent 90%),radial-gradient(ellipse 45% 55% at 5% 90%,#e6f7eb 0%,transparent 90%),#f7fbf8; }
-.eyebrow { color:#0a957b; font-size:11px; font-weight:800; letter-spacing:.18em; }
-.section-heading { margin-top:15px; font-size:clamp(2rem,3.9vw,3.55rem); line-height:1.17; letter-spacing:-.06em; font-weight:800; color:#193c36; }
-.section-description { margin-top:21px; max-width:510px; font-size:14px; line-height:1.95; color:#71897d; }
+.hero-visual { padding: 0 1rem 1.25rem; }
+.pharmacist-band { background-image: radial-gradient(circle at 85% 20%,#42b89b38,transparent 28%),radial-gradient(circle at 15% 120%,#064e463d,transparent 40%),radial-gradient(#ffffff18 1px,transparent 1px); background-size:auto,auto,18px 18px; }
+.eyebrow { color:var(--brand); font-size:.75rem; font-weight:800; letter-spacing:.16em; line-height:1.5; }
+.section-heading { margin-top:15px; font-size:clamp(2rem,2.5vw + 1rem,3.25rem); line-height:1.1; letter-spacing:-.02em; font-weight:800; color:var(--ink); }
+.section-description { margin-top:21px; max-width:610px; font-size:clamp(1rem,1.15vw,1.125rem); line-height:1.7; color:var(--muted); }
 .floating-card { animation:float 5.5s ease-in-out infinite; }
 @keyframes float { 0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)} }
 .medicine-tile { background:linear-gradient(135deg,#e1f5e9,#f5faf3); }
@@ -24,9 +46,7 @@ a:focus-visible,button:focus-visible,input:focus-visible { outline: 3px solid #1
 @media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}.floating-card{animation:none}*,*:before,*:after{transition-duration:.01ms!important}}
 
 /* Refined type scale, legible section hierarchy, and gentle motion */
-.eyebrow {font-size:clamp(.72rem,.9vw,.84rem);letter-spacing:.14em;line-height:1.5}
-.section-heading {font-size:clamp(2.15rem,4vw,3.7rem);line-height:1.13;letter-spacing:-.055em;text-wrap:balance}
-.section-description {font-size:clamp(.94rem,1.15vw,1.08rem);line-height:1.8;max-width:610px}
+.hero-mesh h1 { font-size:clamp(2.5rem,4vw + 1rem,4.5rem); line-height:1.08; letter-spacing:-.02em; }
 .hero-copy {animation:hero-enter .75s cubic-bezier(.2,.7,.2,1) both}
 .hero-visual {animation:hero-enter .85s .12s cubic-bezier(.2,.7,.2,1) both}
 @keyframes hero-enter {from{opacity:0;transform:translateY(22px)}to{opacity:1;transform:translateY(0)}}
@@ -34,12 +54,15 @@ a:focus-visible,button:focus-visible,input:focus-visible { outline: 3px solid #1
 .medicine-product-image {filter:drop-shadow(0 9px 12px #174e3920);transition:transform .45s cubic-bezier(.2,.7,.2,1)}
 .medicine-card:hover .medicine-product-image {transform:scale(1.075) rotate(-1deg)}
 .medicine-art {transition:background .3s ease}
+.art-rose{background:linear-gradient(135deg,#fff1f2,#ffe4e6)}.art-sky{background:linear-gradient(135deg,#f0f9ff,#e0f2fe)}.art-amber{background:linear-gradient(135deg,#fffbeb,#fef3c7)}.art-violet{background:linear-gradient(135deg,#f5f3ff,#ede9fe)}.art-red{background:linear-gradient(135deg,#fff1f2,#fee2e2)}.art-orange{background:linear-gradient(135deg,#fff7ed,#ffedd5)}.art-lime{background:linear-gradient(135deg,#f7fee7,#ecfccb)}.art-emerald{background:linear-gradient(135deg,#ecfdf5,#d1fae5)}.art-teal{background:linear-gradient(135deg,#f0fdfa,#ccfbf1)}.art-indigo{background:linear-gradient(135deg,#eef2ff,#e0e7ff)}
 .medicine-card:hover .medicine-art {background:linear-gradient(135deg,#d9f3e5,#f7fcf8)}
 .medicine-dialog {animation:dialog-in .2s ease-out both}
 @keyframes dialog-in {from{opacity:0;transform:translateY(10px) scale(.98)}to{opacity:1;transform:translateY(0) scale(1)}}
 .process-card:hover {transform:translateY(-5px);box-shadow:0 18px 45px #1f594916}
+.process-card + .process-card:before { content:""; position:absolute; left:-1.25rem; top:3.25rem; width:1.25rem; border-top:1px dashed #9ed1bd; }
 .faq-card:hover {border-color:#a8d8c6}
 .reveal-on-scroll.is-visible {animation:reveal-up .65s ease-out both}
 @keyframes reveal-up {from{opacity:.45;transform:translateY(18px)}to{opacity:1;transform:translateY(0)}}
-@media(max-width:640px){.hero-mesh h1{font-size:clamp(2.8rem,11vw,4.2rem);letter-spacing:-.065em}.floating-card{max-width:75%;padding:10px}.floating-card small{font-size:9px}.section-heading{font-size:clamp(2rem,8vw,2.8rem)}}
+@media(max-width:640px){.hero-mesh h1{font-size:clamp(2.5rem,10vw,3.75rem)}.floating-card{max-width:75%;padding:10px}.floating-card small{font-size:9px}.section-heading{font-size:clamp(2rem,8vw,2.8rem)}}
+@media(max-width:767px){.hero-visual{padding-inline:0}.process-card + .process-card:before{display:none}}
 @media(prefers-reduced-motion:reduce){.hero-copy,.hero-visual,.reveal-on-scroll.is-visible,.medicine-dialog{animation:none!important}.medicine-product-image,.process-card,.medicine-art{transition:none!important}.medicine-card:hover .medicine-product-image,.process-card:hover{transform:none}}

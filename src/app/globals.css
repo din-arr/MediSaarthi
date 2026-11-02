@@ -4,6 +4,9 @@
 @theme inline {
   --font-display: var(--font-display);
   --font-sans: var(--font-sans);
+  --font-devanagari: var(--font-devanagari);
+  --font-tamil: var(--font-tamil);
+  --font-bengali: var(--font-bengali);
   --color-brand: #087e70;
   --color-brand-deep: #06685e;
   --color-ink: #193c36;
@@ -33,7 +36,7 @@
 }
 
 html { scroll-behavior: smooth; }
-body { margin: 0; font-family: var(--font-sans), Arial, sans-serif; background: var(--mint); color: var(--ink); line-height: 1.65; transition: background-color .25s ease,color .25s ease; }
+body { margin: 0; font-family: var(--font-sans), var(--font-devanagari), var(--font-tamil), var(--font-bengali), Arial, sans-serif; background: var(--mint); color: var(--ink); line-height: 1.65; transition: background-color .25s ease,color .25s ease; }
 h1, h2, h3 { font-family: var(--font-display), Arial, sans-serif; letter-spacing: -0.02em; line-height: 1.1; }
 button, a, input { -webkit-tap-highlight-color: transparent; }
 button { cursor: pointer; }

@@ -1,10 +1,18 @@
 export const images = {
   hero: {
-    src: "https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?auto=format&fit=crop&w=1100&q=85",
-    alt: "Healthcare professional supporting a patient",
+    src: "/images/doctor.jpg",
+    alt: "Doctor speaking warmly with a patient in a bright care setting",
   },
   prescription: {
-    src: "https://images.unsplash.com/photo-1584982751601-97dcc096659c?auto=format&fit=crop&w=1000&q=85",
-    alt: "Medical care and prescription consultation",
+    src: "/images/consultation.jpg",
+    alt: "Clinician and patient discussing a prescription together",
+  },
+  medicines: {
+    src: "/images/medicines.jpg",
+    alt: "Organised medicine and healthcare supplies in a clean setting",
+  },
+  family: {
+    src: "/images/family.jpg",
+    alt: "Family spending time together at home",
   },
 } as const;

@@ -1,26 +1,24 @@
+@import url('https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap');
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
-}
-
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
-}
+:root { color-scheme: light; }
+html { scroll-behavior: smooth; }
+body { margin: 0; font-family: 'Manrope', Arial, sans-serif; background: #f8fbf9; }
+button, a, input { -webkit-tap-highlight-color: transparent; }
+button { cursor: pointer; }
+a:focus-visible,button:focus-visible,input:focus-visible { outline: 3px solid #16a085; outline-offset: 3px; }
+.nav-link { transition: color .2s; }
+.nav-link:hover { color: #087e70; }
+.hero-mesh { background: radial-gradient(ellipse 50% 55% at 93% 25%,#d6f1e5 0%,transparent 90%),radial-gradient(ellipse 45% 55% at 5% 90%,#e6f7eb 0%,transparent 90%),#f7fbf8; }
+.eyebrow { color:#0a957b; font-size:11px; font-weight:800; letter-spacing:.18em; }
+.section-heading { margin-top:15px; font-size:clamp(2rem,3.9vw,3.55rem); line-height:1.17; letter-spacing:-.06em; font-weight:800; color:#193c36; }
+.section-description { margin-top:21px; max-width:510px; font-size:14px; line-height:1.95; color:#71897d; }
+.floating-card { animation:float 5.5s ease-in-out infinite; }
+@keyframes float { 0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)} }
+.medicine-tile { background:linear-gradient(135deg,#e1f5e9,#f5faf3); }
+.tile-1 { background:linear-gradient(135deg,#e4f1fb,#f1faf7); }
+.tile-2 { background:linear-gradient(135deg,#fff2dc,#f6faeb); }
+.medicine-bottle { position:relative; width:72px; height:96px; display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;border-radius:14px 14px 18px 18px;background:linear-gradient(95deg,#fdfefe,#e7f1ee);box-shadow:10px 13px 22px #255e4228,-4px -4px 15px #ffffffb5; transform:rotate(-9deg); }
+.medicine-bottle:before {content:'';position:absolute;top:-13px;left:13px;width:46px;height:17px;border-radius:5px 5px 2px 2px;background:#187e70;box-shadow:inset 0 3px #53aa98;}
+.medicine-bottle:after {content:'';position:absolute;top:30px;left:0;width:100%;height:36px;background:#ddf2e8;z-index:-1;}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}.floating-card{animation:none}*,*:before,*:after{transition-duration:.01ms!important}}

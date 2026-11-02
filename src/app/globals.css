@@ -1,4 +1,5 @@
 @import "tailwindcss";
+@custom-variant dark (&:where(.dark, .dark *));
 
 @theme inline {
   --font-display: var(--font-display);
@@ -21,17 +22,31 @@
   --amber: #c88b24;
 }
 
+.dark {
+  color-scheme: dark;
+  --brand: #34d399;
+  --brand-deep: #134e4a;
+  --ink: #ecfdf5;
+  --muted: #94a3b8;
+  --mint: #071513;
+  --amber: #fbbf24;
+}
+
 html { scroll-behavior: smooth; }
-body { margin: 0; font-family: var(--font-sans), Arial, sans-serif; background: var(--mint); color: var(--ink); line-height: 1.65; }
+body { margin: 0; font-family: var(--font-sans), Arial, sans-serif; background: var(--mint); color: var(--ink); line-height: 1.65; transition: background-color .25s ease,color .25s ease; }
 h1, h2, h3 { font-family: var(--font-display), Arial, sans-serif; letter-spacing: -0.02em; line-height: 1.1; }
 button, a, input { -webkit-tap-highlight-color: transparent; }
 button { cursor: pointer; }
 a:focus-visible,button:focus-visible,input:focus-visible { outline: 3px solid var(--brand); outline-offset: 3px; }
 .nav-link { transition: color .2s; }
 .nav-link:hover { color: var(--brand); }
+.footer-link { transition: color .2s ease; }
+.footer-link:hover { color: #6ee7b7; }
 .hero-mesh { background: radial-gradient(ellipse 50% 55% at 93% 25%,#d6f1e5 0%,transparent 90%),radial-gradient(ellipse 45% 55% at 5% 90%,#e6f7eb 0%,transparent 90%),#f7fbf8; }
+.dark .hero-mesh { background: radial-gradient(ellipse 50% 55% at 93% 25%,#0f766e35 0%,transparent 75%),radial-gradient(ellipse 45% 55% at 5% 90%,#134e4a45 0%,transparent 75%),#071513; }
 .hero-visual { padding: 0 1rem 1.25rem; }
 .pharmacist-band { background-image: radial-gradient(circle at 85% 20%,#42b89b38,transparent 28%),radial-gradient(circle at 15% 120%,#064e463d,transparent 40%),radial-gradient(#ffffff18 1px,transparent 1px); background-size:auto,auto,18px 18px; }
+.jaali { background-image: linear-gradient(45deg,#ffffff12 25%,transparent 25%,transparent 75%,#ffffff12 75%),linear-gradient(-45deg,#ffffff12 25%,transparent 25%,transparent 75%,#ffffff12 75%); background-size:28px 28px; }
 .eyebrow { color:var(--brand); font-size:.75rem; font-weight:800; letter-spacing:.16em; line-height:1.5; }
 .section-heading { margin-top:15px; font-size:clamp(2rem,2.5vw + 1rem,3.25rem); line-height:1.1; letter-spacing:-.02em; font-weight:800; color:var(--ink); }
 .section-description { margin-top:21px; max-width:610px; font-size:clamp(1rem,1.15vw,1.125rem); line-height:1.7; color:var(--muted); }

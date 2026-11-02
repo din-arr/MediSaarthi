@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Inter, Plus_Jakarta_Sans } from "next/font/google";
 import "./globals.css";
 import MotionProvider from "../components/motion/MotionProvider";
+import ThemeProvider from "../components/ThemeProvider";
 
 const display = Plus_Jakarta_Sans({
   variable: "--font-display",
@@ -23,5 +24,5 @@ export const metadata: Metadata = {
 };
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
-  return <html lang="en"><body className={`${display.variable} ${sans.variable}`}><MotionProvider>{children}</MotionProvider></body></html>;
+  return <html lang="en" suppressHydrationWarning><body className={`${display.variable} ${sans.variable}`}><ThemeProvider><MotionProvider>{children}</MotionProvider></ThemeProvider></body></html>;
 }

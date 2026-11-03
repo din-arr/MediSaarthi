@@ -1,4 +1,42 @@
 import type { Dictionary } from "./types";
-// Machine-assisted translation; review by a native speaker recommended.
 import { en } from "./en";
-export const bn: Dictionary = { ...en, languageName: "বাংলা", landing: { eyebrow: "MediSaarthi · কলকাতা", title: "ওষুধ পুনরায় নেওয়া, এখন সহজ।", description: "ফার্মাসিস্টের প্রতিটি প্রেসক্রিপশন যাচাইয়ের সঙ্গে এক মিনিটের মধ্যে পরিবারের মাসিক ওষুধ পুনরায় নিন।", login: "পুনরায় ওষুধ নিতে লগ ইন করুন", getStarted: "শুরু করুন", existingCustomer: "আগেই গ্রাহক? লগ ইন করুন", headerLogin: "লগ ইন", trustLabel: "কেন MediSaarthi", trust: [{ title: "ফার্মাসিস্ট প্রতিটি প্রেসক্রিপশন যাচাই করেন", description: "প্যাক করার আগে প্রতিটি প্রেসক্রিপশন ওষুধ পরীক্ষা করা হয়।" }, { title: "নিকটতম দোকান থেকে একই দিনে", description: "কলকাতা ও হাওড়ার নিকটতম দোকানে স্টক খুঁজে নেওয়া হয়।" }, { title: "ওষুধ শেষ হওয়ার আগে মনে করিয়ে দিই", description: "সহজ রিফিল রিমাইন্ডার আপনার রুটিন ঠিক রাখতে সাহায্য করে।" }], disclaimer: "স্বাধীন শিক্ষামূলক ডেমো · আসল অর্ডার বা চিকিৎসা নথি নয়" }, auth: { ...en.auth, brand: "MediSaarthi", enterMobile: "আপনার মোবাইল নম্বর লিখুন", mobileHelp: "MediSaarthi-তে নিবন্ধিত মোবাইল নম্বর ব্যবহার করুন।", phoneInvalid: "সঠিক ১০ সংখ্যার মোবাইল নম্বর লিখুন।", sendOtp: "OTP পাঠান", enterCode: "পাঠানো ৬ সংখ্যার কোডটি লিখুন", codeSent: "এই নম্বরে কোড পাঠানো হয়েছে", verify: "যাচাই করুন", changeNumber: "নম্বর বদলান", resend: "৩০ সেকেন্ড পরে আবার পাঠান", resendCode: "৩০ সেকেন্ডের মধ্যে কোড আবার পাঠান", demoNote: "ডেমো মোড: 123456 ব্যবহার করুন", otpInvalid: "৬ সংখ্যার ডেমো কোডটি লিখুন।", loginError: "লগ ইন করা যায়নি। আবার চেষ্টা করুন।", otpDigit: "OTP-এর অঙ্ক", phonePlaceholder: "১০ সংখ্যার মোবাইল নম্বর", stepOne: "১", stepTwo: "২", stepThree: "৩", back: "ফিরে যান", continue: "চালিয়ে যান", welcomeTitle: "MediSaarthi-তে স্বাগতম", welcomeSubtitle: "মোবাইল নম্বর দিয়ে লগ ইন করুন বা অ্যাকাউন্ট তৈরি করুন।", encrypted: "আপনার প্রেসক্রিপশন এনক্রিপ্ট করা হয়", delivery: "নিকটতম দোকান থেকে একই দিনে ডেলিভারি", pharmacistChecks: "ফার্মাসিস্ট প্রতিটি প্রেসক্রিপশন যাচাই করেন", footerSecurity: "আপনার নম্বর শুধু লগ ইন ও অর্ডারের আপডেট পাঠাতে ব্যবহার করা হয়।", loading: "লোড হচ্ছে", success: "সব প্রস্তুত", createProfile: "আপনার প্রোফাইল তৈরি করুন", fullName: "পুরো নাম", fullNamePlaceholder: "আপনার পুরো নাম লিখুন", preferredLanguage: "পছন্দের ভাষা", familyMember: "যাঁর জন্য ওষুধ নেন, পরিবারের সদস্য যোগ করুন", familyMemberOptional: "ঐচ্ছিক", familyName: "পরিবারের সদস্যের নাম", familyRelation: "সম্পর্ক", relationMother: "মা", relationFather: "বাবা", relationSpouse: "স্বামী/স্ত্রী", relationChild: "সন্তান", relationOther: "অন্যান্য", consent: "আমি শর্তাবলি ও গোপনীয়তা নীতিতে সম্মত এবং আমার প্রেসক্রিপশন নিরাপদে সংরক্ষণে সম্মতি দিচ্ছি", createAccount: "অ্যাকাউন্ট তৈরি করুন", required: "এই ঘরটি পূরণ করুন।", profileError: "প্রোফাইল সম্পূর্ণ করে সম্মতি দিন।", otp: "OTP" }, dashboard: { welcome: "স্বাগতম", welcomeName: "স্বাগতম, {name}", logout: "লগ আউট", customerHome: "আপনার ওষুধের হোম", pharmacistQueue: "ফার্মাসিস্টের কিউ" } };
+
+export const bn: Dictionary = {
+  ...en,
+  languageName: "বাংলা",
+  landing: {
+    ...en.landing,
+    eyebrow: "MediSaarthi · কলকাতা",
+    heroEyebrow: "কলকাতা ও হাওড়া জুড়ে ৪৬টি স্টোর",
+    heroTitle: "এক মিনিটে আপনার পরিবারের ওষুধ পুনরায় নিন।",
+    heroAccent: "এক মিনিটে পুনরায় নিন।",
+    heroDescription: "পরিবারের ওষুধের রুটিন ঠিক রাখতে ফার্মাসিস্টের যত্নে তৈরি শান্ত, সহজ সেবা।",
+    getStarted: "শুরু করুন",
+    existingCustomer: "আগেই গ্রাহক? লগ ইন করুন",
+    headerLogin: "লগ ইন",
+    navHow: "কীভাবে কাজ করে",
+    navSafety: "নিরাপত্তা",
+    navCaregivers: "যাঁরা যত্ন নেন",
+    heroReorder: "শুরু করুন",
+    heroLogin: "লগ ইন",
+    trustItems: ["ফার্মাসিস্ট প্রতিটি প্রেসক্রিপশন যাচাই করেন", "একই দিনে ডেলিভারি", "এনক্রিপ্ট করা প্রেসক্রিপশন"],
+    phoneGreeting: "সুপ্রভাত, দেবাশিস",
+    phoneFamily: "জন্য: মা",
+    phoneRunsOut: "৪ দিনে শেষ হবে",
+    phoneReorder: "পুনরায় নিন",
+    phonePacked: "RX-50211 · সল্ট লেকে প্যাক করা হয়েছে",
+    howTitle: "কীভাবে কাজ করে",
+    howDescription: "প্রেসক্রিপশন থেকে দরজায় পৌঁছানো পর্যন্ত সহজ, যত্নশীল পথ।",
+    howSteps: [{ title: "প্রেসক্রিপশন আপলোড করুন", description: "অর্ডারের জন্য পরিষ্কার প্রেসক্রিপশন দিন।" }, { title: "ফার্মাসিস্ট প্রতিটি ওষুধ যাচাই করেন", description: "ফার্মাসিস্ট প্রতিটি ওষুধ ও পরিমাণ পরীক্ষা করেন।" }, { title: "নিকটতম স্টোর প্যাক করে", description: "নিকটতম স্টোরে স্টক খুঁজে নেওয়া হয়।" }, { title: "ডেলিভারি ও রিমাইন্ডার", description: "একই দিনে পান এবং শেষ হওয়ার আগে জানতে পারেন।" }],
+    safetyTitle: "নিরাপত্তা সবার আগে",
+    safetyItems: ["Schedule H/H1 ওষুধে ফার্মাসিস্টের অনুমোদন দরকার", "প্রেসক্রিপশন এনক্রিপ্ট করা হয় এবং প্রতিটি অ্যাক্সেস লগ করা হয়", "AI শুধু খসড়া তৈরি করে; সিদ্ধান্ত নেন ফার্মাসিস্ট"],
+    caregiverTitle: "পুরো পরিবারের যত্ন",
+    caregiverDescription: "গুরুত্বপূর্ণ মানবিক তথ্য না হারিয়ে সবার ওষুধের রুটিন একসঙ্গে রাখুন।",
+    caregiverFamily: ["মা", "বাবা", "আমি"],
+    caregiverRefills: "এই মাসে ২টি রিফিল",
+    ctaTitle: "আপনার প্রথম রি-অর্ডার শুরু করুন",
+    ctaButton: "শুরু করুন",
+    disclaimer: "স্বাধীন শিক্ষামূলক ডেমো · আসল অর্ডার বা চিকিৎসা নথি নয়",
+  },
+  auth: { ...en.auth, brand: "MediSaarthi", welcomeTitle: "MediSaarthi-তে স্বাগতম", welcomeSubtitle: "মোবাইল নম্বর দিয়ে লগ ইন করুন বা অ্যাকাউন্ট তৈরি করুন।", enterMobile: "আপনার মোবাইল নম্বর লিখুন", phoneInvalid: "সঠিক ১০ সংখ্যার মোবাইল নম্বর লিখুন।", phoneRequired: "চালিয়ে যেতে মোবাইল নম্বর লিখুন।", continue: "চালিয়ে যান", enterCode: "এই নম্বরে পাঠানো ৬ সংখ্যার কোড লিখুন", demoNote: "123456 ব্যবহার করুন", verify: "যাচাই করুন", changeNumber: "নম্বর বদলান", resendCode: "৩০ সেকেন্ডে আবার পাঠান", createProfile: "আপনার প্রোফাইল তৈরি করুন", fullName: "পুরো নাম", fullNamePlaceholder: "আপনার পুরো নাম লিখুন", preferredLanguage: "পছন্দের ভাষা", familyMember: "যাঁর জন্য ওষুধ নেন, পরিবারের সদস্য যোগ করুন", familyMemberOptional: "ঐচ্ছিক", familyName: "পরিবারের সদস্যের নাম", consent: "আমি শর্তাবলি ও গোপনীয়তা নীতিতে সম্মত এবং আমার প্রেসক্রিপশন নিরাপদে সংরক্ষণে সম্মতি দিচ্ছি", createAccount: "অ্যাকাউন্ট তৈরি করুন", profileError: "প্রোফাইল সম্পূর্ণ করে সম্মতি দিন।", otpDigit: "OTP-এর অঙ্ক" },
+};

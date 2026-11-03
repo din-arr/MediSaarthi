@@ -8,10 +8,16 @@ type LanguageContextValue = { lang: LanguageCode; setLang: (lang: LanguageCode) 
 const LanguageContext = createContext<LanguageContextValue | null>(null);
 
 export default function LanguageProvider({ children }: Readonly<{ children: React.ReactNode }>) {
-  const [lang, setLangState] = useState<LanguageCode>(() => {
-    if (typeof window === "undefined") return "en";
-    try { const saved = window.localStorage.getItem("medisaarthi-language"); return saved && saved in dictionaries ? saved as LanguageCode : "en"; } catch { return "en"; }
-  });
+  const [lang, setLangState] = useState<LanguageCode>("en");
+  useEffect(() => {
+    const timer = window.setTimeout(() => {
+      try {
+        const saved = window.localStorage.getItem("medisaarthi-language");
+        if (saved && saved in dictionaries) setLangState(saved as LanguageCode);
+      } catch { /* localStorage may be unavailable */ }
+    }, 0);
+    return () => window.clearTimeout(timer);
+  }, []);
   useEffect(() => { document.documentElement.lang = lang; }, [lang]);
   const setLang = (nextLang: LanguageCode) => {
     setLangState(nextLang);

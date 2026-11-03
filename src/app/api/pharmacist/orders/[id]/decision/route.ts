@@ -3,6 +3,7 @@ import { prisma } from "../../../../../../lib/prisma";
 import { packCount, requirePharmacist } from "../../../../../../lib/pharmacy/auth";
 import { assertTransition, RuleError } from "../../../../../../lib/pharmacy/orderRules";
 import { releaseStock } from "../../../../../../lib/routing";
+import { notify } from "../../../../../../lib/notify";
 
 type Body = {
   action?: "approve" | "reupload" | "reject";
@@ -34,6 +35,7 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
         if (to === "REJECTED" && order.storeId) await releaseStock(tx, order.items, order.storeId);
         if (order.prescription) await tx.prescription.update({ where: { id: order.prescription.id }, data: { status: to === "REJECTED" ? "REJECTED" : "REUPLOAD_REQUESTED" } });
         await tx.auditLog.create({ data: { orderId: id, userId: pharmacistId, action: to, detail: { reason } } });
+        await notify(tx, order.customerId, to === "REJECTED" ? `${order.number} could not be approved: ${reason}` : `${order.number}: please upload a clearer prescription. ${reason}`, id, "WHATSAPP");
         return tx.order.update({ where: { id }, data: { status: to, decisionReason: reason, verifiedById: pharmacistId, verifiedAt: new Date() } });
       }
 
@@ -63,6 +65,7 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
         await tx.refill.create({ data: { customerId: order.customerId, familyMemberId: order.familyMemberId, productId: item.productId, dosePerDay: dose, lastQty: item.quantity * packCount(item.product.packSize), nextRunOutDate: new Date(Date.now() + days * 86_400_000) } });
       }
       await tx.auditLog.create({ data: { orderId: id, userId: pharmacistId, action: "APPROVED", detail: { note: reason || null } } });
+      await notify(tx, order.customerId, `Good news: a pharmacist approved ${order.number}. Choose UPI or cash on delivery to continue.`, id, "WHATSAPP");
       return tx.order.update({ where: { id }, data: { status: "APPROVED", decisionReason: null } });
     });
     return NextResponse.json({ status: result.status });

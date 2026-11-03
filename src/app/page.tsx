@@ -36,7 +36,7 @@ function HomeContent() {
       <motion.section className="final-cta section-wrap" {...fade}><h2>{t.landing.ctaTitle}</h2><button className="primary-button" onClick={openAuth}>{t.landing.ctaButton}<ArrowRight size={17} /></button></motion.section>
     </main>
     <footer className="product-footer"><span className="logo">Medi<span className="logo-accent">Saarthi</span></span><span>{t.landing.disclaimer}</span></footer>
-    <AuthDialog open={authOpen} onClose={() => setAuthOpen(false)} />
+    <AuthDialog open={authOpen} initialError={searchParams.get("reason") === "session-expired" ? "Please log in again." : ""} onClose={() => setAuthOpen(false)} />
   </div>;
 }
 

@@ -100,12 +100,20 @@ async function main() {
   await prisma.ruleConfig.deleteMany();
   await prisma.product.deleteMany();
   await prisma.store.deleteMany();
-  await prisma.user.deleteMany();
-
-  const customer = await prisma.user.create({ data: { phone: "9000000001", role: UserRole.CUSTOMER, name: "Debasish Ghosh", preferredLanguage: "en" } });
-  const pharmacist = await prisma.user.create({ data: { phone: "9000000002", role: UserRole.PHARMACIST, name: "Demo pharmacist", preferredLanguage: "en" } });
-  const rina = await prisma.user.create({ data: { phone: "9000000003", role: UserRole.CUSTOMER, name: "Rina Sen", preferredLanguage: "en" } });
-  const arif = await prisma.user.create({ data: { phone: "9000000004", role: UserRole.CUSTOMER, name: "Arif Mondal", preferredLanguage: "en" } });
+  const demoUsers = [
+    { id: "user_debasish", phone: "9000000001", role: UserRole.CUSTOMER, name: "Debasish Ghosh" },
+    { id: "user_pharmacist", phone: "9000000002", role: UserRole.PHARMACIST, name: "Demo pharmacist" },
+    { id: "user_rina", phone: "9000000003", role: UserRole.CUSTOMER, name: "Rina Sen" },
+    { id: "user_arif", phone: "9000000004", role: UserRole.CUSTOMER, name: "Arif Mondal" },
+  ] as const;
+  for (const demo of demoUsers) {
+    const existing = await prisma.user.findUnique({ where: { phone: demo.phone } });
+    if (existing && existing.id !== demo.id) await prisma.user.update({ where: { id: existing.id }, data: { id: demo.id } });
+  }
+  const customer = await prisma.user.upsert({ where: { id: "user_debasish" }, update: { phone: "9000000001", role: UserRole.CUSTOMER, name: "Debasish Ghosh", preferredLanguage: "en" }, create: { id: "user_debasish", phone: "9000000001", role: UserRole.CUSTOMER, name: "Debasish Ghosh", preferredLanguage: "en" } });
+  const pharmacist = await prisma.user.upsert({ where: { id: "user_pharmacist" }, update: { phone: "9000000002", role: UserRole.PHARMACIST, name: "Demo pharmacist", preferredLanguage: "en" }, create: { id: "user_pharmacist", phone: "9000000002", role: UserRole.PHARMACIST, name: "Demo pharmacist", preferredLanguage: "en" } });
+  const rina = await prisma.user.upsert({ where: { id: "user_rina" }, update: { phone: "9000000003", role: UserRole.CUSTOMER, name: "Rina Sen", preferredLanguage: "en" }, create: { id: "user_rina", phone: "9000000003", role: UserRole.CUSTOMER, name: "Rina Sen", preferredLanguage: "en" } });
+  const arif = await prisma.user.upsert({ where: { id: "user_arif" }, update: { phone: "9000000004", role: UserRole.CUSTOMER, name: "Arif Mondal", preferredLanguage: "en" }, create: { id: "user_arif", phone: "9000000004", role: UserRole.CUSTOMER, name: "Arif Mondal", preferredLanguage: "en" } });
   const mother = await prisma.familyMember.create({ data: { name: "Mother", relation: "Mother", userId: customer.id } });
 
   const storeMap = new Map<string, string>();

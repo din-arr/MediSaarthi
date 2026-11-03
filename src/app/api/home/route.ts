@@ -1,11 +1,13 @@
 import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
 import { prisma } from "../../../lib/prisma";
-import { readSession, SESSION_COOKIE } from "../../../lib/session";
+import { getSession, SESSION_COOKIE } from "../../../lib/session";
+import { expiredSessionResponse } from "../../../lib/apiErrors";
 
 export async function GET(request: Request) {
-  const session = await readSession((await cookies()).get(SESSION_COOKIE)?.value);
-  if (!session || session.role !== "CUSTOMER") return NextResponse.json({ error: "Unauthenticated" }, { status: 401 });
+  const session = await getSession((await cookies()).get(SESSION_COOKIE)?.value);
+  if (!session) return expiredSessionResponse();
+  if (session.role !== "CUSTOMER") return NextResponse.json({ error: "Unauthenticated" }, { status: 401 });
   const familyMemberId = new URL(request.url).searchParams.get("familyMemberId");
   const monthStart = new Date();
   monthStart.setDate(1);

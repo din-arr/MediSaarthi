@@ -6,11 +6,11 @@ import { FormEvent, type ReactNode, useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useLanguage } from "../LanguageProvider";
 
-type Props = { open: boolean; onClose: () => void };
+type Props = { open: boolean; onClose: () => void; initialError?: string };
 type Step = 1 | 2 | 3;
 type Relation = "Mother" | "Father" | "Spouse" | "Child" | "Other";
 
-export default function AuthDialog({ open, onClose }: Props) {
+export default function AuthDialog({ open, onClose, initialError = "" }: Props) {
   const { lang, setLang, t } = useLanguage();
   const router = useRouter();
   const reduced = useReducedMotion();
@@ -23,7 +23,7 @@ export default function AuthDialog({ open, onClose }: Props) {
   const [relation, setRelation] = useState<Relation | null>(null);
   const [familyMembers, setFamilyMembers] = useState<Array<{ name: string; relation: Relation }>>([]);
   const [consent, setConsent] = useState(false);
-  const [error, setError] = useState("");
+  const [error, setError] = useState(initialError);
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
   const [demoCode, setDemoCode] = useState("");

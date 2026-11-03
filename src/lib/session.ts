@@ -1,4 +1,5 @@
 import { jwtVerify, SignJWT } from "jose";
+import { prisma } from "./prisma";
 
 export const SESSION_COOKIE = "medisaarthi-session";
 const secret = new TextEncoder().encode(process.env.AUTH_SECRET ?? "medisaarthi-demo-auth-secret-change-me");
@@ -19,4 +20,12 @@ export async function readSession(token: string | undefined) {
   } catch {
     return null;
   }
+}
+
+export async function getSession(token: string | undefined) {
+  const session = await readSession(token);
+  if (!session) return null;
+  const user = await prisma.user.findUnique({ where: { id: session.userId } });
+  if (!user || user.role !== session.role) return null;
+  return { ...session, user };
 }

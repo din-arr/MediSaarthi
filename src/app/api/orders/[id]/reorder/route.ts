@@ -1,10 +1,12 @@
 import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
 import { prisma } from "../../../../../lib/prisma";
-import { readSession, SESSION_COOKIE } from "../../../../../lib/session";
+import { getSession, SESSION_COOKIE } from "../../../../../lib/session";
+import { expiredSessionResponse } from "../../../../../lib/apiErrors";
 export async function POST(request: Request, context: { params: Promise<{ id: string }> }) {
-  const session = await readSession((await cookies()).get(SESSION_COOKIE)?.value);
-  if (!session || session.role !== "CUSTOMER") return NextResponse.json({ error: "Unauthenticated" }, { status: 401 });
+  const session = await getSession((await cookies()).get(SESSION_COOKIE)?.value);
+  if (!session) return expiredSessionResponse();
+  if (session.role !== "CUSTOMER") return NextResponse.json({ error: "Unauthenticated" }, { status: 401 });
   const { id } = await context.params;
   const source = await prisma.order.findFirst({ where: { id, customerId: session.userId }, include: { items: true } });
   if (!source) return NextResponse.json({ error: "Order not found." }, { status: 404 });

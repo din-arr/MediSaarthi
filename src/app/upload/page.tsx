@@ -60,6 +60,7 @@ export default function UploadPage() {
       const body = new FormData(); body.append("file", file);
       const response = await fetch("/api/prescriptions", { method: "POST", body });
       const result = await response.json() as { prescriptionId?: string; draft?: Draft[]; error?: string };
+      if (response.status === 401 && result.error === "SESSION_EXPIRED") { router.push("/?auth=login&reason=session-expired"); return; }
       if (!response.ok) throw new Error(result.error ?? t.auth.loginError);
       setPrescriptionId(result.prescriptionId ?? ""); setDraft(result.draft ?? []); setProgress(100); setStage("review");
     } catch (requestError) { setError(requestError instanceof Error ? requestError.message : t.auth.loginError); }
@@ -72,6 +73,7 @@ export default function UploadPage() {
     try {
       const response = await fetch("/api/orders", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ prescriptionId, familyMemberId: familyMemberId || undefined, addressId: addressId || undefined, items: draft.map((item) => ({ productId: item.productId, quantity: item.quantity })) }) });
       const result = await response.json() as { id?: string; routingReason?: string; missingItems?: string[]; error?: string };
+      if (response.status === 401 && result.error === "SESSION_EXPIRED") { router.push("/?auth=login&reason=session-expired"); return; }
       if (!response.ok) throw new Error(result.error ?? t.auth.loginError);
       setRoutingMessage(result.routingReason ?? "");
       setStage("place");

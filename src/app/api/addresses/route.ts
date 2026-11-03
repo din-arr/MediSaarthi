@@ -1,7 +1,8 @@
 import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
 import { prisma } from "../../../lib/prisma";
-import { readSession, SESSION_COOKIE } from "../../../lib/session";
+import { getSession, SESSION_COOKIE } from "../../../lib/session";
+import { expiredSessionResponse, prismaErrorResponse } from "../../../lib/apiErrors";
 import { approximateCityCoordinates, cityForPincode, isOutsideDeliveryArea, nearestPoint } from "../../../lib/location";
 
 type AddressInput = {
@@ -18,10 +19,7 @@ type AddressInput = {
   isDefault?: boolean;
 };
 
-async function customerId() {
-  const session = await readSession((await cookies()).get(SESSION_COOKIE)?.value);
-  return session?.role === "CUSTOMER" ? session.userId : null;
-}
+async function customerSession() { return getSession((await cookies()).get(SESSION_COOKIE)?.value); }
 
 function clean(value?: string) {
   return value?.trim() ?? "";
@@ -32,7 +30,8 @@ async function resolvePincode(pincode: string) {
 }
 
 export async function GET(request: Request) {
-  const id = await customerId();
+  const session = await customerSession(); const id = session?.role === "CUSTOMER" ? session.userId : null;
+  if (!session) return expiredSessionResponse();
   if (!id) return NextResponse.json({ error: "Unauthenticated" }, { status: 401 });
   const url = new URL(request.url);
   const pincode = url.searchParams.get("pincode");
@@ -58,7 +57,8 @@ export async function GET(request: Request) {
 }
 
 async function saveAddress(request: Request, method: "POST" | "PATCH") {
-  const id = await customerId();
+  const session = await customerSession(); const id = session?.role === "CUSTOMER" ? session.userId : null;
+  if (!session) return expiredSessionResponse();
   if (!id) return NextResponse.json({ error: "Unauthenticated" }, { status: 401 });
   const body = await request.json() as AddressInput;
   const pincode = clean(body.pincode);
@@ -95,13 +95,13 @@ async function saveAddress(request: Request, method: "POST" | "PATCH") {
   return NextResponse.json(address);
 }
 
-export async function POST(request: Request) { return saveAddress(request, "POST"); }
-export async function PATCH(request: Request) { return saveAddress(request, "PATCH"); }
+export async function POST(request: Request) { try { return await saveAddress(request, "POST"); } catch (error) { return prismaErrorResponse(error, "We could not save this address."); } }
+export async function PATCH(request: Request) { try { return await saveAddress(request, "PATCH"); } catch (error) { return prismaErrorResponse(error, "We could not update this address."); } }
 
 export async function DELETE(request: Request) {
-  const id = await customerId();
+  const session = await customerSession(); const id = session?.role === "CUSTOMER" ? session.userId : null;
   const addressId = new URL(request.url).searchParams.get("id");
+  if (!session) return expiredSessionResponse();
   if (!id || !addressId) return NextResponse.json({ error: "Address not found." }, { status: 400 });
-  await prisma.address.deleteMany({ where: { id: addressId, userId: id } });
-  return NextResponse.json({ ok: true });
+  try { await prisma.address.deleteMany({ where: { id: addressId, userId: id } }); return NextResponse.json({ ok: true }); } catch (error) { return prismaErrorResponse(error, "We could not delete this address."); }
 }

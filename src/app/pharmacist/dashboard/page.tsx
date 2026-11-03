@@ -13,6 +13,8 @@ export default function DashboardPage() {
   const [days, setDays] = useState(7);
   const [data, setData] = useState<Data | null>(null);
   const [showAll, setShowAll] = useState(false);
+  const [reminder, setReminder] = useState("");
+  const runReminders = async () => { const response = await fetch("/api/pharmacist/reminders", { method: "POST" }); const result = await response.json(); setReminder(response.ok ? `Checked ${result.checked} refills, sent ${result.sent} reminders.` : result.error); };
   const [me, setMe] = useState<{ name: string; user?: { registrationNumber?: string | null } } | null>(null);
 
   useEffect(() => { fetch("/api/auth/session").then((response) => response.ok ? response.json() : null).then(setMe); }, []);
@@ -71,6 +73,7 @@ export default function DashboardPage() {
               )}
             </section>
           </div>
+          <section className="flow-card reminder-job"><div><h2>Refill reminders</h2><p className="muted-small">Runs every morning. Texts customers whose medicine runs out within 5 days.</p>{reminder && <p className="ok-note">{reminder}</p>}</div><button className="secondary-button" type="button" onClick={runReminders}>Run now</button></section>
         </>}
       </div>
     </main>

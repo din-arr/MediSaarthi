@@ -10,6 +10,7 @@ Medicine reordering for a Kolkata pharmacy chain (46 stores across Kolkata and H
 |---|---|---|
 | Customer | Home | Big reorder button, family switcher, "running low" reminders, latest order |
 | Customer | Upload | Prescription upload, AI draft of the items, delivery address, nearest store |
+| Customer | Search + cart | OTC medicines (paracetamol, ORS…) go straight to cart, no prescription or pharmacist wait |
 | Customer | Order | Status timeline, pharmacist decisions, re-upload, UPI / cash on delivery |
 | Pharmacist | Queue | Oldest first, waiting time, schedule, AI confidence |
 | Pharmacist | Review | Prescription beside the items; approve, edit or reject with a reason |

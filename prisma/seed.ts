@@ -1,3 +1,5 @@
+for (const file of [".env", ".env.local"]) { try { process.loadEnvFile(file); } catch { /* optional */ } }
+import { encryptBuffer } from "../src/lib/prescriptions/crypto";
 import { Prisma, PrismaClient, Schedule, OrderStatus, ApprovalStatus, PrescriptionStatus, UserRole } from "@prisma/client";
 
 const prisma = new PrismaClient();
@@ -84,7 +86,14 @@ const stores = [
   ["KOL", "MediSaarthi Kolkata Airport", "Airport", "700052", 22.65, 88.446],
 ] as const;
 
+async function demoPrescription(id: string, patient: string, lines: string[], blurred = false) {
+  const body = lines.map((line, index) => `<text x="60" y="${330 + index * 46}" font-size="28" font-family="cursive" fill="#1e3a8a">${line}</text>`).join("");
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="800" height="1000" viewBox="0 0 800 1000"><rect width="800" height="1000" fill="#fffdf5"/><rect x="0" y="0" width="800" height="120" fill="#e6f4f1"/><text x="60" y="70" font-size="34" font-family="Arial" font-weight="700" fill="#0f766e">Dr. S. Banerjee, MBBS, MD</text><text x="60" y="105" font-size="20" font-family="Arial" fill="#475569">Reg. No. WBMC 48213 · Salt Lake, Kolkata</text><text x="60" y="190" font-size="24" font-family="Arial" fill="#111">Patient: ${patient}</text><text x="560" y="190" font-size="20" font-family="Arial" fill="#475569">${id}</text><text x="60" y="270" font-size="56" font-family="serif" fill="#111">℞</text><g ${blurred ? 'filter="url(#b)"' : ""}>${body}</g><defs><filter id="b"><feGaussianBlur stdDeviation="5"/></filter></defs><text x="520" y="900" font-size="22" font-family="cursive" fill="#1e3a8a">Signature</text><text x="60" y="960" font-size="16" font-family="Arial" fill="#94a3b8">Sample prescription for demo only</text></svg>`;
+  return encryptBuffer(Buffer.from(svg), "svg");
+}
+
 async function main() {
+  await prisma.auditLog.deleteMany();
   await prisma.prescriptionAccessLog.deleteMany();
   await prisma.approval.deleteMany();
   await prisma.prescription.deleteMany();
@@ -102,7 +111,7 @@ async function main() {
   await prisma.store.deleteMany();
   const demoUsers = [
     { id: "user_debasish", phone: "9000000001", role: UserRole.CUSTOMER, name: "Debasish Ghosh" },
-    { id: "user_pharmacist", phone: "9000000002", role: UserRole.PHARMACIST, name: "Demo pharmacist" },
+    { id: "user_pharmacist", phone: "9000000002", role: UserRole.PHARMACIST, name: "Ananya Roy" },
     { id: "user_rina", phone: "9000000003", role: UserRole.CUSTOMER, name: "Rina Sen" },
     { id: "user_arif", phone: "9000000004", role: UserRole.CUSTOMER, name: "Arif Mondal" },
   ] as const;
@@ -111,7 +120,7 @@ async function main() {
     if (existing && existing.id !== demo.id) await prisma.user.update({ where: { id: existing.id }, data: { id: demo.id } });
   }
   const customer = await prisma.user.upsert({ where: { id: "user_debasish" }, update: { phone: "9000000001", role: UserRole.CUSTOMER, name: "Debasish Ghosh", preferredLanguage: "en" }, create: { id: "user_debasish", phone: "9000000001", role: UserRole.CUSTOMER, name: "Debasish Ghosh", preferredLanguage: "en" } });
-  const pharmacist = await prisma.user.upsert({ where: { id: "user_pharmacist" }, update: { phone: "9000000002", role: UserRole.PHARMACIST, name: "Demo pharmacist", preferredLanguage: "en" }, create: { id: "user_pharmacist", phone: "9000000002", role: UserRole.PHARMACIST, name: "Demo pharmacist", preferredLanguage: "en" } });
+  const pharmacist = await prisma.user.upsert({ where: { id: "user_pharmacist" }, update: { phone: "9000000002", role: UserRole.PHARMACIST, name: "Ananya Roy", registrationNumber: "WB-PH-21487", preferredLanguage: "en" }, create: { id: "user_pharmacist", phone: "9000000002", role: UserRole.PHARMACIST, name: "Ananya Roy", registrationNumber: "WB-PH-21487", preferredLanguage: "en" } });
   const rina = await prisma.user.upsert({ where: { id: "user_rina" }, update: { phone: "9000000003", role: UserRole.CUSTOMER, name: "Rina Sen", preferredLanguage: "en" }, create: { id: "user_rina", phone: "9000000003", role: UserRole.CUSTOMER, name: "Rina Sen", preferredLanguage: "en" } });
   const arif = await prisma.user.upsert({ where: { id: "user_arif" }, update: { phone: "9000000004", role: UserRole.CUSTOMER, name: "Arif Mondal", preferredLanguage: "en" }, create: { id: "user_arif", phone: "9000000004", role: UserRole.CUSTOMER, name: "Arif Mondal", preferredLanguage: "en" } });
   const mother = await prisma.familyMember.create({ data: { name: "Mother", relation: "Mother", userId: customer.id } });
@@ -163,20 +172,21 @@ async function main() {
   const behala = storeMap.get("Behala")!;
   const howrah = storeMap.get("Howrah Maidan")!;
 
-  const order1 = await prisma.order.create({ data: { number: "RX-50211", customerId: customer.id, familyMemberId: mother.id, storeId: saltLake, status: OrderStatus.PACKED, total: 120, createdAt: new Date(Date.now() + 1000), items: { create: { productId: metformin, quantity: 4, unitPrice: 30, approvalStatus: ApprovalStatus.APPROVED } } } });
-  const order2 = await prisma.order.create({ data: { number: "RX-50214", customerId: customer.id, storeId: behala, status: OrderStatus.AWAITING_PHARMACIST, total: 285, items: { create: { productId: telmisartan, quantity: 3, unitPrice: 95 } } } });
-  const order3 = await prisma.order.create({ data: { number: "RX-50219", customerId: customer.id, storeId: howrah, status: OrderStatus.REUPLOAD_REQUESTED, total: 190, items: { create: { productId: levothyroxine, quantity: 1, unitPrice: 190 } } } });
+  const order1 = await prisma.order.create({ data: { number: "RX-50211", customerId: customer.id, familyMemberId: mother.id, storeId: saltLake, status: OrderStatus.PACKED, total: 120, verifiedById: "user_pharmacist", verifiedAt: new Date(Date.now() - 50 * 60 * 1000), createdAt: new Date(Date.now() + 1000), items: { create: { productId: metformin, quantity: 4, unitPrice: 30, approvalStatus: ApprovalStatus.APPROVED, decidedById: "user_pharmacist", decidedAt: new Date(Date.now() - 50 * 60 * 1000) } } } });
+  const order2 = await prisma.order.create({ data: { number: "RX-50214", customerId: rina.id, createdAt: new Date(Date.now() - 18 * 60 * 1000), storeId: behala, status: OrderStatus.AWAITING_PHARMACIST, total: 285, items: { create: { productId: telmisartan, quantity: 3, unitPrice: 95 } } } });
+  const order3 = await prisma.order.create({ data: { number: "RX-50219", customerId: arif.id, decisionReason: "Prescription photo is blurred. Please upload a clearer photo.", storeId: howrah, status: OrderStatus.REUPLOAD_REQUESTED, total: 190, items: { create: { productId: levothyroxine, quantity: 1, unitPrice: 190 } } } });
 
-  const prescription1 = await prisma.prescription.create({ data: { uploadedById: customer.id, orderId: order1.id, encryptedFilePath: "encrypted/demo/rx-50211.enc", aiDraft: { patient: "Madhabi Ghosh", medicine: "Metformin 500 mg", quantity: 4 }, status: PrescriptionStatus.APPROVED } });
+  const prescription1 = await prisma.prescription.create({ data: { uploadedById: customer.id, orderId: order1.id, encryptedFilePath: await demoPrescription("RX-50211", "Madhabi Ghosh", ["Tab Metformin 500 mg", "1 tab twice daily after food", "x 60 days"]), doctorName: "Dr. S. Banerjee", doctorRegNo: "WBMC 48213", issuedOn: new Date(Date.now() - 20 * 86400000), aiDraft: [{ name: "Metformin", strength: "500 mg", quantity: 4, confidence: 0.94 }], status: PrescriptionStatus.APPROVED } });
   await prisma.approval.create({ data: { prescriptionId: prescription1.id, pharmacistId: pharmacist.id, notes: "Verified for demo order." } });
-  await prisma.prescription.create({ data: { uploadedById: customer.id, orderId: order2.id, encryptedFilePath: "encrypted/demo/rx-50214.enc", aiDraft: { medicine: "Telmisartan 40 mg", quantity: 3 }, status: PrescriptionStatus.PENDING } });
-  await prisma.prescription.create({ data: { uploadedById: customer.id, orderId: order3.id, encryptedFilePath: "encrypted/demo/rx-50219.enc", aiDraft: Prisma.JsonNull, status: PrescriptionStatus.REUPLOAD_REQUESTED } });
+  await prisma.prescription.create({ data: { uploadedById: rina.id, orderId: order2.id, encryptedFilePath: await demoPrescription("RX-50214", "Rina Sen", ["Tab Telmisartan 40 mg", "1 tab once daily, morning", "x 30 days"]), issuedOn: new Date(Date.now() - 10 * 86400000), aiDraft: [{ name: "Telmisartan", strength: "40 mg", quantity: 3, confidence: 0.82 }], status: PrescriptionStatus.PENDING } });
+  await prisma.prescription.create({ data: { uploadedById: arif.id, orderId: order3.id, encryptedFilePath: await demoPrescription("RX-50219", "Arif Mondal", ["Tab Levo??? 50", "once daily empty stomach"], true), aiDraft: Prisma.JsonNull, status: PrescriptionStatus.REUPLOAD_REQUESTED } });
   await prisma.refill.create({ data: { customerId: customer.id, familyMemberId: mother.id, productId: metformin, dosePerDay: 2, lastQty: 60, nextRunOutDate: new Date(Date.now() + 4 * 24 * 60 * 60 * 1000) } });
 
   await prisma.ruleConfig.createMany({ data: [
     { key: "schedule_h_requires_prescription", value: { requiresPrescription: true, pharmacistApproval: true }, description: "Schedule H medicines require a valid prescription and pharmacist approval." },
     { key: "schedule_h1_requires_register", value: { requiresPrescription: true, pharmacistApproval: true, h1Register: true }, description: "Schedule H1 medicines also create a register entry." },
     { key: "schedule_x_online_sale", value: { allowed: false }, description: "Schedule X and narcotic medicines cannot be sold online." },
+    { key: "prescription_validity_days", value: { days: 180 }, description: "How long a prescription can be used for Schedule H/H1 items." },
   ] });
 
   console.log(`Seeded ${stores.length} stores, ${products.length} products, and 3 demo orders.`);

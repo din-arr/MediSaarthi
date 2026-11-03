@@ -33,7 +33,7 @@ export type Dictionary = {
     caregiverTitle: string;
     caregiverDescription: string;
     caregiverFamily: string[];
-    caregiverRefills: string;
+    caregiverRefills: string[];
     ctaTitle: string;
     ctaButton: string;
     trustLabel: string;

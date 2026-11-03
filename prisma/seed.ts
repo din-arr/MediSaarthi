@@ -104,7 +104,8 @@ async function main() {
 
   const customer = await prisma.user.create({ data: { phone: "9000000001", role: UserRole.CUSTOMER, name: "Debasish Ghosh", preferredLanguage: "en" } });
   const pharmacist = await prisma.user.create({ data: { phone: "9000000002", role: UserRole.PHARMACIST, name: "Demo pharmacist", preferredLanguage: "en" } });
-  await prisma.user.create({ data: { phone: "9000000003", role: UserRole.CUSTOMER, name: "Rina Sen", preferredLanguage: "en" } });
+  const rina = await prisma.user.create({ data: { phone: "9000000003", role: UserRole.CUSTOMER, name: "Rina Sen", preferredLanguage: "en" } });
+  const arif = await prisma.user.create({ data: { phone: "9000000004", role: UserRole.CUSTOMER, name: "Arif Mondal", preferredLanguage: "en" } });
   const mother = await prisma.familyMember.create({ data: { name: "Mother", relation: "Mother", userId: customer.id } });
 
   const storeMap = new Map<string, string>();
@@ -129,7 +130,9 @@ async function main() {
   const pincodeRows = new Map<string, { code: string; lat: number; lng: number }>(stores.map(([, , , code, lat, lng]) => [code, { code, lat, lng }]));
   for (const [code, lat, lng] of [["700001", 22.57, 88.35], ["700002", 22.61, 88.37], ["700005", 22.6, 88.38], ["700007", 22.58, 88.36], ["700009", 22.57, 88.37], ["700012", 22.57, 88.36], ["700014", 22.55, 88.37], ["700020", 22.54, 88.36], ["700023", 22.53, 88.34], ["700028", 22.63, 88.41], ["700035", 22.61, 88.39], ["700039", 22.54, 88.4], ["700040", 22.51, 88.32], ["700041", 22.49, 88.31], ["700045", 22.5, 88.38], ["700047", 22.48, 88.38], ["700053", 22.47, 88.33], ["700060", 22.5, 88.3], ["700061", 22.48, 88.29], ["700075", 22.5, 88.4], ["700078", 22.5, 88.39], ["700082", 22.53, 88.32], ["700091", 22.59, 88.42], ["700098", 22.57, 88.44], ["700105", 22.55, 88.4], ["700108", 22.7, 88.39], ["700118", 22.73, 88.39], ["700123", 22.69, 88.45], ["700126", 22.72, 88.46], ["700129", 22.74, 88.43], ["711103", 22.57, 88.32], ["711104", 22.59, 88.33], ["711106", 22.61, 88.33], ["711107", 22.61, 88.34], ["711109", 22.6, 88.31], ["711110", 22.59, 88.3], ["711113", 22.57, 88.3], ["711114", 22.56, 88.3], ["711202", 22.64, 88.34], ["711203", 22.64, 88.35], ["711205", 22.63, 88.36], ["711206", 22.66, 88.35], ["711302", 22.58, 88.24], ["711308", 22.6, 88.25], ["711313", 22.62, 88.27], ["711316", 22.64, 88.28], ["711401", 22.65, 88.23], ["711403", 22.63, 88.22], ["711404", 22.64, 88.21], ["711409", 22.62, 88.2]] as const) pincodeRows.set(code, { code, lat, lng });
   for (const row of pincodeRows.values()) await prisma.pincode.create({ data: row });
-  await prisma.address.create({ data: { userId: customer.id, label: "Home", line: "12 Lake View Road", pincode: "700064", lat: 22.5867, lng: 88.417 } });
+  await prisma.address.create({ data: { userId: customer.id, familyMemberId: mother.id, label: "Home", recipientName: "Madhabi Ghosh", phone: "9000000001", line1: "12 Lake View Road", line2: "Near Salt Lake Stadium", area: "Salt Lake", city: "Kolkata", pincode: "700064", lat: 22.5867, lng: 88.417, isDefault: true } });
+  await prisma.address.create({ data: { userId: rina.id, label: "Home", recipientName: "Rina Sen", phone: "9000000003", line1: "8 Diamond Harbour Road", line2: "Near Behala Tram Depot", area: "Behala", city: "Kolkata", pincode: "700034", lat: 22.497, lng: 88.31, isDefault: true } });
+  await prisma.address.create({ data: { userId: arif.id, label: "Home", recipientName: "Arif Mondal", phone: "9000000004", line1: "21 Station Road", line2: "Near Howrah Maidan", area: "Howrah Maidan", city: "Howrah", pincode: "711101", lat: 22.585, lng: 88.342, isDefault: true } });
 
   const metformin = productMap.get("Metformin")!;
   const telmisartan = productMap.get("Telmisartan")!;

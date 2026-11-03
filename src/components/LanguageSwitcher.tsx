@@ -17,7 +17,7 @@ export default function LanguageSwitcher() {
     return () => { document.removeEventListener("mousedown", close); document.removeEventListener("keydown", escape); };
   }, []);
   return <div ref={ref} className="relative">
-    <button type="button" aria-label="Choose language" aria-haspopup="menu" aria-expanded={open} onClick={() => setOpen(!open)} className="flex min-h-11 min-w-11 items-center justify-center gap-1 rounded-xl border border-slate-200 px-2 text-slate-600 transition hover:border-emerald-500 hover:text-emerald-700 dark:border-white/10 dark:text-slate-300">
+    <button type="button" aria-label="Choose language" aria-haspopup="menu" aria-expanded={open} onClick={() => setOpen(!open)} className="language-button">
       <Globe size={17} aria-hidden="true"/><span className="text-[11px] font-bold">{current.short}</span><ChevronDown size={13} aria-hidden="true"/>
     </button>
     {open && <div role="menu" className="absolute right-0 top-[calc(100%+0.5rem)] z-[60] w-56 rounded-2xl border border-slate-200 bg-white p-2 shadow-xl dark:border-white/10 dark:bg-[#12302b]">

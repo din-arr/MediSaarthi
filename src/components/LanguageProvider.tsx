@@ -12,8 +12,12 @@ export default function LanguageProvider({ children }: Readonly<{ children: Reac
     if (typeof window === "undefined") return "en";
     try { const saved = window.localStorage.getItem("medisaarthi-language"); return saved && saved in dictionaries ? saved as LanguageCode : "en"; } catch { return "en"; }
   });
-  useEffect(() => { document.documentElement.lang = lang; try { window.localStorage.setItem("medisaarthi-language", lang); } catch { /* localStorage may be unavailable */ } }, [lang]);
-  const value = useMemo(() => ({ lang, setLang: setLangState, t: dictionaries[lang] }), [lang]);
+  useEffect(() => { document.documentElement.lang = lang; }, [lang]);
+  const setLang = (nextLang: LanguageCode) => {
+    setLangState(nextLang);
+    try { window.localStorage.setItem("medisaarthi-language", nextLang); } catch { /* localStorage may be unavailable */ }
+  };
+  const value = useMemo(() => ({ lang, setLang, t: dictionaries[lang] }), [lang]);
   return <LanguageContext.Provider value={value}>{children}</LanguageContext.Provider>;
 }
 

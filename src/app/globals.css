@@ -35,7 +35,7 @@ body {
   margin: 0;
   background: var(--background);
   color: var(--text);
-  font-family: var(--font-sans), Arial, sans-serif;
+  font-family: var(--font-sans), var(--font-devanagari), var(--font-bengali), Arial, sans-serif;
   font-size: 17px;
   line-height: 1.6;
 }
@@ -60,20 +60,83 @@ a:focus-visible, button:focus-visible { outline: 3px solid var(--brand); outline
 .hero { max-width: 720px; }
 .eyebrow { margin: 0 0 1.25rem; color: var(--brand); font-size: .8rem; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; }
 h1, h2, p { margin-top: 0; }
-h1 { max-width: 680px; margin-bottom: 1.5rem; font-size: clamp(2.75rem, 7vw, 5.25rem); letter-spacing: -.055em; line-height: 1.02; }
+h1, h2 { font-family: var(--font-display), var(--font-devanagari), var(--font-bengali), sans-serif; letter-spacing: -.02em; }
+h1 { max-width: 680px; margin-bottom: 1.5rem; font-size: clamp(2.5rem, 5vw, 4rem); line-height: 1.06; }
 .hero-description { max-width: 620px; margin-bottom: 2rem; color: var(--muted); font-size: 1.18rem; }
 .primary-button { display: inline-flex; min-height: 3.25rem; align-items: center; border-radius: .65rem; background: var(--brand); padding: 0 1.4rem; color: white; font-size: 1rem; font-weight: 700; text-decoration: none; }
 .primary-button:hover { background: var(--brand-deep); }
+.header-login { display: inline-flex; min-height: 2.75rem; align-items: center; border: 1px solid var(--border); border-radius: .65rem; padding: 0 .9rem; color: var(--text); font-size: .9rem; font-weight: 700; text-decoration: none; }
+.header-login:hover, .landing-login-link:hover { border-color: var(--brand); color: var(--brand); }
+.landing-login-link { display: inline-block; margin-left: 1rem; color: var(--brand); font-size: .95rem; font-weight: 700; text-decoration: none; }
 .trust-list { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem; margin-top: 8rem; border-top: 1px solid var(--border); padding-top: 2rem; }
 .trust-point { display: flex; gap: 1rem; }
 .trust-number { color: var(--brand); font-size: .8rem; font-weight: 700; }
 .trust-point h2 { margin-bottom: .45rem; font-size: 1.05rem; line-height: 1.3; }
 .trust-point p { margin: 0; color: var(--muted); font-size: .95rem; line-height: 1.5; }
 .site-footer { display: flex; width: 100%; max-width: 1180px; margin: auto auto 0; justify-content: space-between; gap: 1rem; border-top: 1px solid var(--border); padding: 1.5rem; color: var(--muted); font-size: .8rem; }
+.auth-header { display: flex; width: min(1180px, 100%); margin: 0 auto; align-items: center; justify-content: space-between; padding: 1.25rem 1.5rem; }
+.login-page { min-height: 100vh; padding-bottom: 4rem; }
+.login-layout { display: grid; width: min(1120px, calc(100% - 2.5rem)); min-height: calc(100vh - 6rem); margin: 0 auto; align-items: center; gap: 4rem; grid-template-columns: 1fr minmax(0, 448px); }
+.login-reassurance { border-radius: 2rem; background: #e9f6f3; padding: 3rem; }
+.dark .login-reassurance { background: #123d39; }
+.login-reassurance h2 { max-width: 430px; margin: 0 0 2.5rem; font-size: clamp(2rem, 4vw, 3.25rem); line-height: 1.08; }
+.reassurance-list { display: grid; gap: 1.5rem; }
+.reassurance-item { display: flex; align-items: center; gap: 1rem; }
+.reassurance-item span { display: grid; width: 2.75rem; height: 2.75rem; flex: 0 0 auto; place-items: center; border-radius: .85rem; background: var(--surface); color: var(--brand); }
+.reassurance-item svg { width: 20px; }
+.reassurance-item p { margin: 0; font-size: 1rem; font-weight: 600; }
+.login-column { width: 100%; }
+.login-card { position: relative; width: 100%; max-width: 448px; margin: 0 auto; overflow: hidden; border: 1px solid var(--border); border-radius: 1.5rem; background: var(--surface); padding: 2rem; box-shadow: 0 20px 55px rgb(15 23 42 / 8%); }
+.dark .login-card { box-shadow: 0 20px 55px rgb(0 0 0 / 20%); }
+.step-indicator { display: flex; align-items: center; gap: .6rem; margin-bottom: 2rem; color: var(--muted); font-size: .8rem; font-weight: 700; }
+.step-indicator span { display: grid; width: 1.65rem; height: 1.65rem; place-items: center; border: 1px solid var(--border); border-radius: 999px; }
+.step-indicator span + span::before { content: "·"; margin-left: -.9rem; color: var(--border); }
+.step-indicator .step-active { border-color: var(--brand); background: var(--brand); color: white; }
+.login-heading h1 { margin-bottom: .65rem; font-size: clamp(1.75rem, 4vw, 2rem); line-height: 1.12; }
+.login-heading p { margin-bottom: 1.75rem; color: var(--muted); }
+.phone-input { display: flex; min-height: 3.5rem; align-items: center; gap: .75rem; border: 1px solid var(--border); border-radius: .75rem; padding: 0 1rem; background: var(--surface); }
+.phone-input:focus-within, .text-input:focus { border-color: var(--brand); outline: 3px solid color-mix(in srgb, var(--brand) 20%, transparent); }
+.phone-input span { color: var(--muted); font-weight: 700; }
+.phone-input input, .text-input { width: 100%; min-height: 3.5rem; border: 1px solid var(--border); border-radius: .75rem; background: var(--surface); color: var(--text); font: inherit; outline: 0; padding: .75rem 1rem; }
+.phone-input input { min-height: 3rem; border: 0; padding: 0; letter-spacing: .08em; }
+.input-error { border-color: #dc2626; }
+.auth-primary { display: flex; width: 100%; min-height: 3.5rem; align-items: center; justify-content: center; margin-top: 1.5rem; border: 0; border-radius: .75rem; background: var(--brand); color: white; font: inherit; font-weight: 700; }
+.auth-primary:hover:not(:disabled) { background: var(--brand-deep); }
+.auth-primary:disabled { cursor: not-allowed; opacity: .48; }
+.form-error { display: flex; align-items: center; gap: .45rem; margin: .75rem 0 0; color: #b91c1c; font-size: .9rem; }
+.otp-grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: .5rem; }
+.otp-grid input { width: 100%; min-height: 3.75rem; border: 1px solid var(--border); border-radius: .7rem; background: var(--surface); color: var(--text); text-align: center; font: 700 1.5rem var(--font-sans); outline: 0; }
+.otp-grid input:focus { border-color: var(--brand); outline: 3px solid color-mix(in srgb, var(--brand) 20%, transparent); }
+.otp-grid.otp-error input { border-color: #dc2626; }
+.auth-links { display: flex; justify-content: space-between; gap: 1rem; margin-top: 1.25rem; }
+.auth-links button { border: 0; background: none; color: var(--brand); font: inherit; font-size: .9rem; padding: .5rem 0; }
+.auth-links button:disabled { cursor: not-allowed; color: var(--muted); }
+.demo-note { margin: -1rem 0 1.25rem; color: var(--muted); font-size: .9rem; }
+.field-label { display: block; margin: 1rem 0 .45rem; color: var(--text); font-size: .9rem; font-weight: 700; }
+.field-label span { color: var(--muted); font-weight: 400; }
+.language-cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: .5rem; }
+.language-card { display: flex; min-height: 3.25rem; align-items: center; justify-content: center; gap: .35rem; border: 1px solid var(--border); border-radius: .7rem; background: var(--surface); color: var(--text); font: inherit; font-size: .9rem; }
+.language-card.selected { border-color: var(--brand); background: color-mix(in srgb, var(--brand) 10%, var(--surface)); color: var(--brand); }
+.family-heading { margin-top: 1.5rem; }
+.consent-row { display: flex; gap: .65rem; margin-top: 1.25rem; color: var(--muted); font-size: .85rem; line-height: 1.4; }
+.consent-row input { width: 1.1rem; height: 1.1rem; flex: 0 0 auto; accent-color: var(--brand); }
+.button-spinner { animation: spin 1s linear infinite; }
+.success-overlay { position: absolute; inset: 0; display: grid; place-items: center; background: color-mix(in srgb, var(--surface) 92%, transparent); color: var(--brand); }
+.login-footer-note { margin: 1rem auto 0; color: var(--muted); text-align: center; font-size: .8rem; }
+@keyframes spin { to { transform: rotate(360deg); } }
+.dashboard-card { text-align: center; }
+.dashboard-card .primary-button { margin-top: 1.5rem; border: 0; }
 
 @media (max-width: 700px) {
   .landing-main { padding-top: 5rem; }
   .trust-list { grid-template-columns: 1fr; gap: 1.25rem; margin-top: 5rem; }
   .site-footer { flex-direction: column; }
+  .login-layout { display: block; width: min(100% - 2.5rem, 448px); min-height: 0; padding-top: 3rem; }
+  .login-reassurance { display: none; }
+  .login-card { padding: 2rem; }
+  .auth-header { padding-inline: 1.25rem; }
+  .header-login { display: none; }
 }
+@media (min-width: 701px) { .login-card { padding: 2.5rem; } }
+@media (prefers-reduced-motion: reduce) { .button-spinner { animation: none; } }
 @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }

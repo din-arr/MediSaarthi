@@ -62,6 +62,7 @@ model User {
   verifiedOrders        Order[]                 @relation("OrderVerifier")
   h1Entries             H1RegisterEntry[]       @relation("H1Pharmacist")
   auditLogs             AuditLog[]
+  notifications         Notification[]
   prescriptionAccessLog PrescriptionAccessLog[]
   orders                Order[]                 @relation("CustomerOrders")
   refills               Refill[]
@@ -179,6 +180,14 @@ model Order {
   verifiedById   String?
   verifiedAt     DateTime?
   decisionReason String?
+  paymentMethod  String?
+  paymentStatus  String        @default("UNPAID")
+  paymentRef     String?
+  invoiceNumber  String?
+  packedAt       DateTime?
+  riderName      String?
+  handedOverAt   DateTime?
+  deliveredAt    DateTime?
   createdAt      DateTime      @default(now())
   updatedAt      DateTime      @updatedAt
   customer       User          @relation("CustomerOrders", fields: [customerId], references: [id])
@@ -189,7 +198,22 @@ model Order {
   items          OrderItem[]
   h1Entries      H1RegisterEntry[]
   auditLogs      AuditLog[]
+  notifications  Notification[]
   prescription   Prescription?
+}
+
+model Notification {
+  id        String   @id @default(cuid())
+  userId    String
+  orderId   String?
+  channel   String   @default("SMS")
+  message   String
+  read      Boolean  @default(false)
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  order     Order?   @relation(fields: [orderId], references: [id], onDelete: Cascade)
+
+  @@index([userId, createdAt])
 }
 
 model OrderItem {

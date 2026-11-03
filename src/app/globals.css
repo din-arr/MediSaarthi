@@ -220,6 +220,26 @@ h1 { max-width: 680px; margin-bottom: 1.5rem; font-size: clamp(2.5rem, 5vw, 4rem
 .quick-action-card > strong { font-size: 1.05rem; }
 .quick-action-card > span:not(.icon-tile) { color: var(--muted); font-size: .92rem; line-height: 1.4; }
 .quick-action-card > svg { position: absolute; right: 1.25rem; bottom: 1.35rem; color: var(--brand); }
+.quick-action-card { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; align-items: center; min-height: 7rem; }
+.quick-action-copy { display: grid; min-width: 0; gap: .25rem; }
+.quick-action-copy strong, .quick-action-copy span { overflow: hidden; }
+.quick-action-copy span { display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; color: var(--muted); font-size: .92rem; line-height: 1.4; }
+.quick-action-arrow { position: static !important; flex-shrink: 0; }
+.family-person-list { display: grid; gap: .65rem; }
+.family-person-card { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; border: 1px solid var(--border); border-radius: 1rem; background: var(--surface); }
+.family-person-select { display: flex; min-width: 0; align-items: center; gap: .75rem; border: 0; background: transparent; padding: .8rem; color: var(--text); text-align: left; }
+.family-person-select:hover { color: var(--brand); }
+.family-avatar { display: grid; width: 2.5rem; height: 2.5rem; flex-shrink: 0; place-items: center; border-radius: 999px; font-size: .75rem; font-weight: 800; }
+.family-tone-0 .family-avatar { background: #d7f3ed; color: #087e70; }
+.family-tone-1 .family-avatar { background: #e0efff; color: #2563a8; }
+.family-tone-2 .family-avatar { background: #fce8d5; color: #a65316; }
+.family-tone-3 .family-avatar { background: #eee7fb; color: #7653a8; }
+.family-person-copy { display: grid; min-width: 0; gap: .12rem; }
+.family-person-copy strong, .family-person-copy small { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.family-person-copy small { color: var(--muted); font-size: .78rem; }
+.family-person-detail { display: grid; width: 2.75rem; height: 2.75rem; margin-right: .4rem; place-items: center; color: var(--brand); }
+.field-error { color: #b91c1c; font-size: .8rem; font-weight: 600; }
+.field-hint { color: var(--muted); font-size: .8rem; }
 .icon-tile { display: grid; width: 2.8rem; height: 2.8rem; place-items: center; border-radius: .9rem; }
 .icon-tile svg { width: 21px; }
 .icon-tile.teal { background: #d7f3ed; color: #087e70; }

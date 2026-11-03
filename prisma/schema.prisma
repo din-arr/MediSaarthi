@@ -72,6 +72,7 @@ model FamilyMember {
   owner       User      @relation("FamilyMemberOwner", fields: [userId], references: [id], onDelete: Cascade)
   orders      Order[]   @relation("FamilyMemberOrders")
   addresses   Address[]
+  refills     Refill[]
   createdAt   DateTime  @default(now())
 }
 
@@ -112,6 +113,7 @@ model Store {
 model Pincode {
   id        String    @id @default(cuid())
   code      String    @unique
+  area      String    @default("Kolkata")
   lat       Float
   lng       Float
   addresses Address[]
@@ -239,11 +241,13 @@ model PrescriptionAccessLog {
 model Refill {
   id             String   @id @default(cuid())
   customerId     String
+  familyMemberId String?
   productId      String
   dosePerDay     Decimal
   lastQty        Int
   nextRunOutDate DateTime
   customer       User     @relation(fields: [customerId], references: [id])
+  familyMember   FamilyMember? @relation(fields: [familyMemberId], references: [id], onDelete: SetNull)
   product        Product  @relation(fields: [productId], references: [id])
 }
 

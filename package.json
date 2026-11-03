@@ -13,6 +13,7 @@
     "stock:generate": "tsx scripts/generate-stock.ts",
     "stock:import": "tsx scripts/import-stock.ts",
     "test:routing": "tsx --test tests/routing.test.ts",
+    "test:location": "tsx --test tests/location.test.ts",
     "test:e2e": "playwright test"
   },
   "dependencies": {

@@ -191,6 +191,9 @@ export type Dictionary = {
     deliverTo: string;
     addressRequired: string;
     pincodeUnavailable: string;
+    nextRefill: string;
+    noRefillsDue: string;
+    refillsThisMonth: string;
   };
   languageName: string;
   demoBanner: string;

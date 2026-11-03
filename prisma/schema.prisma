@@ -52,11 +52,16 @@ model User {
   role                  UserRole
   name                  String?
   preferredLanguage     String                  @default("en")
+  registrationNumber    String?
   createdAt             DateTime                @default(now())
   updatedAt             DateTime                @updatedAt
   familyMembers         FamilyMember[]          @relation("FamilyMemberOwner")
   prescriptions         Prescription[]          @relation("PrescriptionUploader")
   approvals             Approval[]              @relation("PharmacistApprovals")
+  itemDecisions         OrderItem[]             @relation("ItemDecisions")
+  verifiedOrders        Order[]                 @relation("OrderVerifier")
+  h1Entries             H1RegisterEntry[]       @relation("H1Pharmacist")
+  auditLogs             AuditLog[]
   prescriptionAccessLog PrescriptionAccessLog[]
   orders                Order[]                 @relation("CustomerOrders")
   refills               Refill[]
@@ -171,13 +176,19 @@ model Order {
   missingItems   Json?
   status         OrderStatus   @default(DRAFT)
   total          Decimal
+  verifiedById   String?
+  verifiedAt     DateTime?
+  decisionReason String?
   createdAt      DateTime      @default(now())
   updatedAt      DateTime      @updatedAt
   customer       User          @relation("CustomerOrders", fields: [customerId], references: [id])
   familyMember   FamilyMember? @relation("FamilyMemberOrders", fields: [familyMemberId], references: [id])
   store          Store?        @relation(fields: [storeId], references: [id])
   address        Address?      @relation(fields: [addressId], references: [id])
+  verifiedBy     User?         @relation("OrderVerifier", fields: [verifiedById], references: [id])
   items          OrderItem[]
+  h1Entries      H1RegisterEntry[]
+  auditLogs      AuditLog[]
   prescription   Prescription?
 }
 
@@ -189,6 +200,10 @@ model OrderItem {
   unitPrice      Decimal
   approvalStatus ApprovalStatus @default(PENDING)
   rejectReason   String?
+  originalQty    Int?
+  decidedById    String?
+  decidedAt      DateTime?
+  decidedBy      User?          @relation("ItemDecisions", fields: [decidedById], references: [id])
   order          Order          @relation(fields: [orderId], references: [id], onDelete: Cascade)
   product        Product        @relation(fields: [productId], references: [id])
 }
@@ -200,6 +215,9 @@ model Prescription {
   encryptedFilePath String
   aiDraft           Json?
   status            PrescriptionStatus      @default(PENDING)
+  doctorName        String?
+  doctorRegNo       String?
+  issuedOn          DateTime?
   uploadedAt        DateTime                @default(now())
   uploadedBy        User                    @relation("PrescriptionUploader", fields: [uploadedById], references: [id])
   order             Order?                  @relation(fields: [orderId], references: [id])
@@ -218,13 +236,32 @@ model Approval {
 }
 
 model H1RegisterEntry {
-  id         String   @id @default(cuid())
-  prescriber String
-  patient    String
-  productId  String
-  qty        Int
-  date       DateTime @default(now())
-  product    Product  @relation(fields: [productId], references: [id])
+  id             String   @id @default(cuid())
+  prescriber     String
+  prescriberRegNo String  @default("")
+  patient        String
+  patientAddress String   @default("")
+  productId      String
+  qty            Int
+  orderId        String?
+  pharmacistId   String?
+  date           DateTime @default(now())
+  product        Product  @relation(fields: [productId], references: [id])
+  order          Order?   @relation(fields: [orderId], references: [id])
+  pharmacist     User?    @relation("H1Pharmacist", fields: [pharmacistId], references: [id])
+}
+
+model AuditLog {
+  id        String   @id @default(cuid())
+  orderId   String
+  userId    String
+  action    String
+  detail    Json?
+  createdAt DateTime @default(now())
+  order     Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  user      User     @relation(fields: [userId], references: [id])
+
+  @@index([orderId, createdAt])
 }
 
 model PrescriptionAccessLog {

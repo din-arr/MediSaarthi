@@ -7,13 +7,16 @@
     "prebuild": "node scripts/generate-medicine-images.mjs",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "db:migrate": "prisma migrate dev",
+    "db:seed": "prisma db seed"
   },
   "dependencies": {
     "lucide-react": "^1.66.0",
     "motion": "^14.9.0",
     "next": "16.4.4",
     "next-themes": "^0.4.6",
+    "@prisma/client": "^6.19.0",
     "react": "19.3.0",
     "react-dom": "19.3.0"
   },
@@ -24,7 +27,12 @@
     "@types/react-dom": "^19",
     "eslint": "^9",
     "eslint-config-next": "16.4.4",
+    "prisma": "^6.19.0",
+    "tsx": "^4.19.2",
     "tailwindcss": "^4",
     "typescript": "^5"
+  },
+  "prisma": {
+    "seed": "tsx prisma/seed.ts"
   }
 }

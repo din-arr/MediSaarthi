@@ -1,0 +1,205 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum UserRole {
+  CUSTOMER
+  PHARMACIST
+  STORE_STAFF
+}
+
+enum Schedule {
+  OTC
+  H
+  H1
+  X
+}
+
+enum OrderStatus {
+  DRAFT
+  AWAITING_PHARMACIST
+  REUPLOAD_REQUESTED
+  APPROVED
+  REJECTED
+  PACKED
+  OUT_FOR_DELIVERY
+  DELIVERED
+}
+
+enum ApprovalStatus {
+  PENDING
+  APPROVED
+  EDITED
+  REJECTED
+}
+
+enum PrescriptionStatus {
+  PENDING
+  APPROVED
+  REUPLOAD_REQUESTED
+  REJECTED
+}
+
+model User {
+  id                    String                 @id @default(cuid())
+  phone                 String                 @unique
+  role                  UserRole
+  name                  String?
+  createdAt             DateTime               @default(now())
+  updatedAt             DateTime               @updatedAt
+  familyMembers         FamilyMember[]         @relation("FamilyMemberOwner")
+  prescriptions         Prescription[]        @relation("PrescriptionUploader")
+  approvals             Approval[]             @relation("PharmacistApprovals")
+  prescriptionAccessLog PrescriptionAccessLog[]
+  orders                Order[]                @relation("CustomerOrders")
+  refills               Refill[]
+}
+
+model FamilyMember {
+  id        String   @id @default(cuid())
+  name      String
+  relation  String
+  dateOfBirth DateTime?
+  ownerId   String
+  owner     User     @relation("FamilyMemberOwner", fields: [ownerId], references: [id], onDelete: Cascade)
+  orders    Order[]  @relation("FamilyMemberOrders")
+  createdAt DateTime @default(now())
+}
+
+model Product {
+  id           String         @id @default(cuid())
+  name         String
+  strength     String
+  packSize     String
+  form         String
+  schedule     Schedule
+  price        Decimal        @db.Decimal(10, 2)
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @updatedAt
+  stock        Stock[]
+  orderItems   OrderItem[]
+  refills      Refill[]
+  registerEntries H1RegisterEntry[]
+  @@unique([name, strength, packSize])
+}
+
+model Store {
+  id        String   @id @default(cuid())
+  name      String
+  area      String   @unique
+  lat       Float
+  lng       Float
+  stock     Stock[]
+  orders    Order[]
+  createdAt DateTime @default(now())
+}
+
+model Stock {
+  id        String   @id @default(cuid())
+  storeId   String
+  productId String
+  qty       Int      @default(0)
+  date      DateTime @default(now())
+  store     Store    @relation(fields: [storeId], references: [id], onDelete: Cascade)
+  product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  @@unique([storeId, productId, date])
+  @@index([storeId, productId])
+}
+
+model Order {
+  id               String       @id @default(cuid())
+  number           String       @unique
+  customerId       String
+  familyMemberId   String?
+  storeId          String?
+  status           OrderStatus  @default(DRAFT)
+  total            Decimal      @db.Decimal(10, 2)
+  createdAt        DateTime     @default(now())
+  updatedAt        DateTime     @updatedAt
+  customer         User         @relation("CustomerOrders", fields: [customerId], references: [id])
+  familyMember     FamilyMember? @relation("FamilyMemberOrders", fields: [familyMemberId], references: [id])
+  store            Store?       @relation(fields: [storeId], references: [id])
+  items            OrderItem[]
+  prescription     Prescription?
+}
+
+model OrderItem {
+  id             String         @id @default(cuid())
+  orderId        String
+  productId      String
+  quantity       Int
+  unitPrice      Decimal        @db.Decimal(10, 2)
+  approvalStatus ApprovalStatus @default(PENDING)
+  rejectReason   String?
+  order          Order          @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  product        Product        @relation(fields: [productId], references: [id])
+}
+
+model Prescription {
+  id              String             @id @default(cuid())
+  uploadedById    String
+  orderId         String?            @unique
+  encryptedFilePath String
+  aiDraft         Json?
+  status          PrescriptionStatus @default(PENDING)
+  uploadedAt      DateTime           @default(now())
+  uploadedBy      User               @relation("PrescriptionUploader", fields: [uploadedById], references: [id])
+  order           Order?             @relation(fields: [orderId], references: [id])
+  approvals       Approval[]
+  accessLogs      PrescriptionAccessLog[]
+}
+
+model Approval {
+  id             String       @id @default(cuid())
+  prescriptionId String
+  pharmacistId   String
+  timestamp      DateTime     @default(now())
+  notes          String?
+  prescription   Prescription @relation(fields: [prescriptionId], references: [id], onDelete: Cascade)
+  pharmacist     User         @relation("PharmacistApprovals", fields: [pharmacistId], references: [id])
+}
+
+model H1RegisterEntry {
+  id         String   @id @default(cuid())
+  prescriber String
+  patient    String
+  productId  String
+  qty        Int
+  date       DateTime @default(now())
+  product    Product  @relation(fields: [productId], references: [id])
+}
+
+model PrescriptionAccessLog {
+  id             String       @id @default(cuid())
+  userId         String
+  prescriptionId String
+  timestamp      DateTime     @default(now())
+  action         String
+  user           User         @relation(fields: [userId], references: [id])
+  prescription   Prescription @relation(fields: [prescriptionId], references: [id], onDelete: Cascade)
+  @@index([prescriptionId, timestamp])
+}
+
+model Refill {
+  id             String   @id @default(cuid())
+  customerId     String
+  productId      String
+  dosePerDay     Decimal  @db.Decimal(10, 2)
+  lastQty        Int
+  nextRunOutDate DateTime
+  customer       User     @relation(fields: [customerId], references: [id])
+  product        Product  @relation(fields: [productId], references: [id])
+}
+
+model RuleConfig {
+  id          String   @id @default(cuid())
+  key         String   @unique
+  value       Json
+  description String?
+  updatedAt   DateTime @updatedAt
+}

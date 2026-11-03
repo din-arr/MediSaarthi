@@ -1,16 +1,9 @@
 import type { Metadata } from "next";
-import { Inter, Noto_Sans_Bengali, Noto_Sans_Devanagari, Noto_Sans_Tamil, Plus_Jakarta_Sans } from "next/font/google";
+import { Inter, Noto_Sans_Bengali, Noto_Sans_Devanagari } from "next/font/google";
 import "./globals.css";
 import MotionProvider from "../components/motion/MotionProvider";
 import ThemeProvider from "../components/ThemeProvider";
 import LanguageProvider from "../components/LanguageProvider";
-
-const display = Plus_Jakarta_Sans({
-  variable: "--font-display",
-  subsets: ["latin"],
-  weight: ["600", "700", "800"],
-  display: "swap",
-});
 
 const sans = Inter({
   variable: "--font-sans",
@@ -19,7 +12,6 @@ const sans = Inter({
   display: "swap",
 });
 const devanagari = Noto_Sans_Devanagari({ variable: "--font-devanagari", subsets: ["devanagari"], weight: ["400", "500", "600", "700"], display: "swap" });
-const tamil = Noto_Sans_Tamil({ variable: "--font-tamil", subsets: ["tamil"], weight: ["400", "500", "600", "700"], display: "swap" });
 const bengali = Noto_Sans_Bengali({ variable: "--font-bengali", subsets: ["bengali"], weight: ["400", "500", "600", "700"], display: "swap" });
 
 export const metadata: Metadata = {
@@ -28,5 +20,5 @@ export const metadata: Metadata = {
 };
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
-  return <html lang="en" suppressHydrationWarning><body className={`${display.variable} ${sans.variable} ${devanagari.variable} ${tamil.variable} ${bengali.variable}`}><ThemeProvider><LanguageProvider><MotionProvider>{children}</MotionProvider></LanguageProvider></ThemeProvider></body></html>;
+  return <html lang="en" suppressHydrationWarning><body className={`${sans.variable} ${devanagari.variable} ${bengali.variable}`}><ThemeProvider><LanguageProvider><MotionProvider>{children}</MotionProvider></LanguageProvider></ThemeProvider></body></html>;
 }

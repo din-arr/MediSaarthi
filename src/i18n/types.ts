@@ -1,4 +1,4 @@
-export type LanguageCode = "en" | "hi" | "mr" | "ta" | "bn";
+export type LanguageCode = "en" | "hi" | "bn";
 
 export type Dictionary = {
   languageName: string;

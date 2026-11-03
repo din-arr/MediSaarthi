@@ -1,93 +1,76 @@
 "use client";
 
-import Image from "next/image";
-import { ChangeEvent, useEffect, useRef, useState, useSyncExternalStore } from "react";
-import {
-  ArrowRight, BadgeCheck, BellRing, Check, ChevronDown, ClipboardCheck,
-  FileCheck2, FileImage, HeartHandshake, HeartPulse, Info, LockKeyhole,
-  Menu, Moon, PackageCheck, Search, ShieldCheck, Sparkles, Sun, Truck,
-  UploadCloud, X,
-} from "lucide-react";
+import { Moon, Sun, HeartPulse } from "lucide-react";
 import { useTheme } from "next-themes";
-import MedicineCatalogue from "./components/MedicineCatalogue";
-import { images } from "../lib/images";
-import Reveal from "../components/motion/Reveal";
-import Float from "../components/motion/Float";
-import { Stagger, StaggerItem } from "../components/motion/Stagger";
+import { useSyncExternalStore } from "react";
 import LanguageSwitcher from "../components/LanguageSwitcher";
-import { useLanguage } from "../components/LanguageProvider";
 
 function ThemeToggle() {
   const { resolvedTheme, setTheme } = useTheme();
   const mounted = useSyncExternalStore(() => () => {}, () => true, () => false);
-  return <button type="button" aria-label="Toggle colour theme" className="grid min-h-11 min-w-11 place-items-center rounded-xl border border-slate-200 text-slate-600 transition hover:border-emerald-500 hover:text-emerald-700 dark:border-white/10 dark:text-slate-300" onClick={() => setTheme(resolvedTheme === "dark" ? "light" : "dark")}>{mounted ? (resolvedTheme === "dark" ? <Sun size={18}/> : <Moon size={18}/>) : <span className="h-[18px] w-[18px]"/>}</button>;
+
+  return (
+    <button
+      type="button"
+      aria-label="Toggle colour theme"
+      className="icon-button"
+      onClick={() => setTheme(resolvedTheme === "dark" ? "light" : "dark")}
+    >
+      {mounted ? (resolvedTheme === "dark" ? <Sun size={18} /> : <Moon size={18} />) : <span className="icon-placeholder" />}
+    </button>
+  );
 }
 
 function Logo() {
-  return <a href="#top" className="flex items-center gap-2.5" aria-label="MediSaarthi home"><span className="grid h-10 w-10 place-items-center rounded-2xl bg-gradient-to-br from-teal-500 to-emerald-700 text-white shadow-[0_8px_20px_#0f766e35]"><HeartPulse size={22}/></span><span className="text-[22px] font-extrabold tracking-[-.03em] text-slate-900 dark:text-emerald-50">Medi<span className="text-teal-600 dark:text-emerald-400">Saarthi</span></span></a>;
+  return (
+    <a href="#top" className="logo" aria-label="MediSaarthi home">
+      <span className="logo-mark"><HeartPulse size={21} /></span>
+      <span>Medi<span className="logo-accent">Saarthi</span></span>
+    </a>
+  );
 }
 
 export default function Home() {
-  const { t } = useLanguage();
-  const [menuOpen, setMenuOpen] = useState(false);
-  const [faqOpen, setFaqOpen] = useState<number | null>(0);
-  const [uploaded, setUploaded] = useState<{ name: string; size: string } | null>(null);
-  const [uploadError, setUploadError] = useState("");
-  const [dragging, setDragging] = useState(false);
-  const [hasScrolled, setHasScrolled] = useState(false);
-  const fileRef = useRef<HTMLInputElement>(null);
+  return (
+    <div id="top" className="site-shell">
+      <header className="site-header">
+        <Logo />
+        <div className="header-actions">
+          <LanguageSwitcher />
+          <ThemeToggle />
+        </div>
+      </header>
 
-  useEffect(() => {
-    const onScroll = () => setHasScrolled(window.scrollY > 8);
-    const onKey = (event: KeyboardEvent) => { if (event.key === "Escape") setMenuOpen(false); };
-    window.addEventListener("scroll", onScroll, { passive: true }); document.addEventListener("keydown", onKey);
-    return () => { window.removeEventListener("scroll", onScroll); document.removeEventListener("keydown", onKey); };
-  }, []);
+      <main className="landing-main">
+        <section className="hero" aria-labelledby="hero-title">
+          <p className="eyebrow">MediSaarthi · Kolkata</p>
+          <h1 id="hero-title">Medicine reordering, made simple.</h1>
+          <p className="hero-description">
+            Reorder your family&apos;s monthly medicines in under a minute, with a pharmacist checking every prescription.
+          </p>
+          <a className="primary-button" href="#login">Log in to reorder</a>
+        </section>
 
-  const processFile = (file?: File) => {
-    if (!file) return;
-    if (!["application/pdf", "image/jpeg", "image/png", "image/webp"].includes(file.type)) { setUploadError("Choose a PDF, JPG, PNG or WebP file."); setUploaded(null); return; }
-    if (file.size > 5 * 1024 * 1024) { setUploadError("Please choose a file under 5 MB."); setUploaded(null); return; }
-    setUploadError(""); setUploaded({ name: file.name, size: `${(file.size / 1024 / 1024).toFixed(2)} MB` });
-  };
-  const onFile = (event: ChangeEvent<HTMLInputElement>) => processFile(event.target.files?.[0]);
-  const nav = [[t.nav.medicines, "#medicines"], [t.nav.upload, "#prescription"], [t.nav.howItWorks, "#how-it-works"], [t.nav.faqs, "#faq"]];
+        <section className="trust-list" aria-label="Why MediSaarthi">
+          <article className="trust-point">
+            <span className="trust-number">01</span>
+            <div><h2>Pharmacist checks every prescription</h2><p>Every prescription medicine is reviewed before it is packed.</p></div>
+          </article>
+          <article className="trust-point">
+            <span className="trust-number">02</span>
+            <div><h2>Same-day from your nearest store</h2><p>We find stock at the closest of our Kolkata and Howrah stores.</p></div>
+          </article>
+          <article className="trust-point">
+            <span className="trust-number">03</span>
+            <div><h2>Reminders before you run out</h2><p>Simple refill reminders help keep your routine on track.</p></div>
+          </article>
+        </section>
+      </main>
 
-  return <div id="top" className="min-h-screen overflow-x-hidden bg-[#f4faf8] text-slate-900 dark:bg-[#071513] dark:text-emerald-50">
-    <div className="bg-[#134e4a] px-4 py-2 text-center text-[11px] font-semibold tracking-wide text-white"><Info className="mr-1 inline-block" size={13}/> {t.demoBanner} <span className="mx-2 opacity-40">|</span> {t.demoBannerDetail}</div>
-    <header className={`sticky top-0 z-50 border-b border-[#e3efeb]/80 bg-white/85 backdrop-blur-xl transition-shadow dark:border-white/10 dark:bg-[#071513]/85 ${hasScrolled ? "shadow-[0_8px_30px_#134e4a18]" : ""}`}>
-      <div className="mx-auto flex h-[72px] max-w-7xl items-center justify-between gap-4 px-5 sm:px-6 lg:px-8"><Logo/>
-        <nav className="hidden items-center gap-1 rounded-full border border-slate-200 bg-slate-50 p-1 text-[13px] font-semibold text-slate-600 lg:flex dark:border-white/10 dark:bg-white/5 dark:text-slate-300" aria-label="Main navigation">{nav.map(([label, href]) => <a key={href} className="rounded-full px-4 py-2 transition hover:bg-white hover:text-teal-700 dark:hover:bg-white/10 dark:hover:text-emerald-300" href={href}>{label}</a>)}</nav>
-        <div className="hidden items-center gap-2 sm:flex"><LanguageSwitcher/><ThemeToggle/><a href="#prescription" className="rounded-xl border border-slate-200 px-4 py-2.5 text-xs font-bold text-slate-700 transition hover:border-teal-500 dark:border-white/10 dark:text-slate-200">{t.nav.uploadRx}</a><a href="#medicines" className="inline-flex items-center gap-2 rounded-xl bg-[#134e4a] px-4 py-2.5 text-xs font-bold text-white transition hover:bg-[#0f766e]">{t.nav.explore} <ArrowRight size={15}/></a></div>
-        <div className="flex items-center gap-2 sm:hidden"><LanguageSwitcher/><ThemeToggle/><button type="button" aria-label={menuOpen ? "Close menu" : "Open menu"} aria-expanded={menuOpen} className="grid min-h-11 min-w-11 place-items-center rounded-xl border border-slate-200 dark:border-white/10" onClick={() => setMenuOpen(!menuOpen)}>{menuOpen ? <X size={22}/> : <Menu size={22}/>}</button></div>
-      </div>
-      {menuOpen && <nav aria-label="Mobile navigation" className="flex flex-col gap-1 border-t border-slate-200 bg-white px-5 pb-5 pt-3 dark:border-white/10 dark:bg-[#0d1f1c] lg:hidden">{nav.map(([label, href]) => <a key={href} onClick={() => setMenuOpen(false)} className="min-h-11 rounded-xl px-3 py-3 text-sm font-semibold hover:bg-emerald-50 dark:hover:bg-white/10" href={href}>{label}</a>)}<div className="mt-2 border-t border-slate-200 pt-3 dark:border-white/10"><LanguageSwitcher/></div></nav>}
-    </header>
-
-    <main>
-      <section className="hero-mesh relative overflow-hidden"><div className="jaali absolute inset-0 opacity-30 dark:opacity-20"/><div className="relative mx-auto grid max-w-7xl items-center gap-12 px-5 pb-20 pt-14 sm:px-6 md:pb-24 lg:grid-cols-[1fr_.9fr] lg:px-8 lg:pt-20">
-        <div className="relative z-10"><div className="inline-flex items-center gap-2 rounded-full border border-emerald-200 bg-white/80 px-4 py-2 text-xs font-bold text-teal-800 shadow-sm dark:border-emerald-400/20 dark:bg-white/10 dark:text-emerald-200"><span className="h-2 w-2 animate-pulse rounded-full bg-emerald-500"/> {t.hero.badge}</div><h1 className="mt-6 max-w-[620px] text-wrap-balance text-[clamp(2.5rem,4vw+1rem,4.5rem)] font-extrabold leading-[1.08] text-[#0b2b26] dark:text-emerald-50">{t.hero.titleBefore}<br/><span className="bg-gradient-to-r from-teal-600 to-emerald-400 bg-clip-text text-transparent">{t.hero.titleAccent}</span> {t.hero.titleAfter}</h1><p className="mt-5 max-w-[560px] text-[17px] leading-[1.7] text-slate-600 dark:text-slate-300">{t.hero.description}</p><div className="mt-7 flex flex-col gap-3 sm:flex-row"><a href="#medicines" className="group inline-flex min-h-12 items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-teal-600 to-emerald-500 px-6 text-sm font-bold text-white shadow-[0_12px_30px_#0f766e30] transition hover:-translate-y-0.5">{t.hero.explore} <ArrowRight className="transition-transform group-hover:translate-x-1" size={18}/></a><a href="#prescription" className="inline-flex min-h-12 items-center justify-center gap-2 rounded-xl bg-white px-6 text-sm font-bold text-[#134e4a] shadow-sm ring-1 ring-slate-200 transition hover:ring-teal-500 dark:bg-[#12302b] dark:text-emerald-100 dark:ring-white/10"><UploadCloud size={18}/> {t.hero.upload}</a></div><div className="mt-7 flex flex-wrap gap-3 text-sm font-semibold text-slate-600 dark:text-slate-300">{t.hero.checks.map((item) => <span key={item} className="inline-flex items-center gap-2"><Check size={16} className="text-emerald-600"/>{item}</span>)}</div></div>
-        <div className="hero-visual relative mx-auto w-full max-w-[530px]"><div className="absolute -inset-6 rounded-[3rem] bg-teal-300/30 blur-3xl dark:bg-teal-500/15"/><div className="relative h-[480px] overflow-hidden rounded-[2.5rem] border-8 border-white bg-emerald-100 shadow-[0_25px_70px_#134e4a25] dark:border-[#12302b] sm:h-[560px]"><Image src={images.hero.src} alt={images.hero.alt} fill priority sizes="(max-width: 1024px) 100vw, 45vw" className="object-cover"/><div className="absolute inset-0 bg-gradient-to-t from-[#063d36aa] via-transparent to-transparent"/><div className="absolute left-7 top-7 text-white"><BadgeCheck size={24}/><p className="mt-2 text-2xl font-extrabold">{t.hero.caption}</p></div></div><Float className="absolute -right-3 top-8 sm:-right-8"><div className="rounded-2xl border border-white/60 bg-white/80 p-4 shadow-xl backdrop-blur-md dark:border-white/10 dark:bg-[#12302bcc]"><div className="flex items-center justify-between gap-8"><span className="text-xs font-bold">{t.hero.progress}</span><span className="grid h-12 w-12 place-items-center rounded-full border-4 border-emerald-400 border-r-slate-200 text-xs font-extrabold dark:border-r-white/10">72%</span></div><div className="mt-3 h-2 w-36 rounded-full bg-slate-200 dark:bg-white/10"><div className="h-full w-[72%] rounded-full bg-emerald-500"/></div></div></Float><Float className="absolute -bottom-3 left-0 sm:-left-8"><div className="rounded-2xl border border-white/60 bg-white/85 p-4 shadow-xl backdrop-blur-md dark:border-white/10 dark:bg-[#12302bcc]"><p className="text-[11px] font-bold text-amber-600">{t.hero.reminder}</p><p className="mt-1 text-xs text-slate-500 dark:text-slate-300">{t.hero.reminderDetail}</p><div className="mt-3 flex gap-2"><button className="rounded-lg bg-[#134e4a] px-3 py-2 text-[10px] font-bold text-white">{t.hero.taken}</button><button className="rounded-lg border border-slate-200 px-3 py-2 text-[10px] font-bold dark:border-white/10">{t.hero.snooze}</button></div></div></Float></div>
-      </div></section>
-
-      <section className="relative z-10 -mt-7 px-5 sm:px-6 lg:px-8"><div className="mx-auto grid max-w-7xl gap-2 rounded-3xl border border-[#e3efeb] bg-white p-3 shadow-[0_18px_50px_#134e4a16] sm:grid-cols-2 lg:grid-cols-4">{[[ShieldCheck,t.sections.trust[0].title,t.sections.trust[0].description],[Truck,t.sections.trust[1].title,t.sections.trust[1].description],[HeartHandshake,t.sections.trust[2].title,t.sections.trust[2].description],[Sparkles,t.sections.trust[3].title,t.sections.trust[3].description]].map(([Icon,title,desc])=>{const I=Icon as typeof ShieldCheck;return <div key={title as string} className="flex items-center gap-3 rounded-2xl p-3"><span className="rounded-xl bg-emerald-50 p-2.5 text-teal-700 dark:bg-emerald-400/10 dark:text-emerald-300"><I size={20}/></span><span><strong className="block text-xs">{title as string}</strong><small className="text-[11px] text-slate-500 dark:text-slate-400">{desc as string}</small></span></div>})}</div></section>
-
-      <section className="px-5 py-20 sm:px-6 md:py-28 lg:px-8"><div className="mx-auto max-w-7xl"><Reveal><div className="mb-10 max-w-2xl"><p className="eyebrow inline-flex rounded-full bg-emerald-100 px-3 py-1 dark:bg-emerald-400/10">A calmer care companion</p><h2 className="section-heading">Small tools for <span className="text-teal-600 dark:text-emerald-400">everyday health routines.</span></h2><p className="section-description">Clear reminders, human review and a catalogue that never asks you to guess.</p></div></Reveal><div className="grid gap-4 md:grid-cols-4"><div className="relative min-h-[300px] overflow-hidden rounded-3xl bg-[#134e4a] p-6 text-white md:col-span-2 md:row-span-2"><Image src={images.medicines.src} alt={images.medicines.alt} fill loading="lazy" sizes="(max-width: 768px) 100vw, 50vw" className="object-cover opacity-35"/><div className="absolute inset-0 bg-gradient-to-br from-[#134e4ae8] to-[#0f766e99]"/><div className="relative z-10"><p className="text-xs font-bold uppercase tracking-[.16em] text-emerald-200">Your care, in view</p><h3 className="mt-4 max-w-sm text-2xl font-extrabold">Keep the important details close.</h3><div className="mt-8 flex flex-wrap gap-2">{["Refill reminders","Pharmacist review","Family routines"].map((chip)=><span key={chip} className="rounded-full border border-white/20 bg-white/10 px-3 py-2 text-xs font-semibold backdrop-blur">{chip}</span>)}</div></div></div>{[[BellRing,"Gentle reminders","Due in 3 days"],[ClipboardCheck,"Rx review","Clear next steps"],[HeartPulse,"Made for families","One calm view"],[Sparkles,"Your language","English · हिंदी"]].map(([Icon,title,desc])=>{const I=Icon as typeof BellRing;return <div key={title as string} className="rounded-3xl border border-[#e3efeb] bg-white p-5 shadow-[0_8px_30px_#134e4a0b] transition hover:-translate-y-1 hover:shadow-[0_18px_40px_#134e4a14] dark:border-white/10 dark:bg-[#0d1f1c]"><span className="inline-flex rounded-xl bg-emerald-50 p-2.5 text-teal-700 dark:bg-emerald-400/10 dark:text-emerald-300"><I size={20}/></span><h3 className="mt-5 text-base font-bold">{title as string}</h3><p className="mt-1 text-sm text-slate-500 dark:text-slate-400">{desc as string}</p><div className="mt-5 h-2 rounded-full bg-emerald-50 dark:bg-white/10"><div className="h-full w-2/3 rounded-full bg-emerald-400"/></div></div>})}</div></div></section>
-
-      <MedicineCatalogue />
-
-      <section id="prescription" className="scroll-mt-24 bg-white px-5 py-20 sm:px-6 md:py-28 lg:px-8 dark:bg-[#0d1f1c]"><div className="mx-auto grid max-w-7xl items-center gap-12 lg:grid-cols-2"><div className="relative"><div className="relative aspect-[4/3] overflow-hidden rounded-3xl bg-emerald-50 shadow-[0_18px_60px_#134e4a18] dark:bg-[#12302b]"><Image src={images.prescription.src} alt={images.prescription.alt} fill loading="lazy" sizes="(max-width: 1024px) 100vw, 50vw" className="object-cover"/></div><div className="absolute bottom-4 right-3 flex items-center gap-3 rounded-2xl border border-[#e3efeb] bg-white p-3 shadow-xl dark:border-white/10 dark:bg-[#12302b] sm:-bottom-5 sm:right-[-15px] sm:p-4"><span className="rounded-xl bg-emerald-50 p-2 text-teal-700 dark:bg-emerald-400/10 dark:text-emerald-300"><FileCheck2 size={22}/></span><span><strong className="block text-xs">Review before fulfilment</strong><small className="text-[11px] text-slate-500 dark:text-slate-400">Humans stay in control</small></span></div></div><div><p className="eyebrow inline-flex rounded-full bg-emerald-100 px-3 py-1 dark:bg-emerald-400/10">Prescriptions made simpler</p><h2 className="section-heading">{t.sections.prescriptionTitle}</h2><p className="section-description">Our planned AI-assisted workflow will draft the medicine details so a pharmacist can check the original prescription, correct mistakes and decide what can be fulfilled.</p><div className="mt-7 grid gap-3">{[["1","Upload a clear prescription"],["2","AI prepares a draft, never an approval"],["3","A pharmacist verifies every prescription item"]].map(([n,label])=><div key={n} className="flex items-center gap-3 text-sm font-semibold text-slate-600 dark:text-slate-300"><span className="grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-teal-600 text-sm font-bold text-white">{n}</span>{label}</div>)}</div><div onDragOver={(e)=>{e.preventDefault();setDragging(true)}} onDragLeave={()=>setDragging(false)} onDrop={(e)=>{e.preventDefault();setDragging(false);processFile(e.dataTransfer.files[0])}} className={`mt-8 rounded-3xl border-2 border-dashed p-5 transition ${dragging ? "border-teal-500 bg-emerald-50 dark:bg-emerald-400/10" : "border-emerald-200 bg-[#f8fcfa] dark:border-white/10 dark:bg-[#12302b]"}`}><input ref={fileRef} aria-label="Choose a demo prescription file" onChange={onFile} type="file" accept="application/pdf,image/jpeg,image/png,image/webp" className="hidden"/><div className="flex items-start gap-4"><span className="rounded-2xl bg-white p-3 text-teal-700 shadow-sm dark:bg-white/10 dark:text-emerald-300"><UploadCloud size={24}/></span><div><h3 className="text-sm font-bold">Drop a file here, or browse</h3><p className="mt-1 text-xs leading-6 text-slate-500 dark:text-slate-400">PDF, JPG, PNG or WebP, up to 5 MB. The file stays in your browser; nothing is uploaded.</p></div></div><button type="button" onClick={()=>fileRef.current?.click()} className="mt-4 min-h-11 w-full rounded-xl bg-[#134e4a] px-5 py-3 text-sm font-bold text-white hover:bg-teal-700">Choose a sample file</button>{uploaded && <div role="status" className="mt-4 flex items-center justify-between gap-3 rounded-xl bg-white p-3 text-xs dark:bg-white/10"><span className="flex min-w-0 items-center gap-2"><FileImage className="shrink-0 text-teal-600" size={18}/><span className="truncate font-semibold">{uploaded.name} ({uploaded.size})</span></span><button aria-label="Remove selected file" onClick={()=>{setUploaded(null);if(fileRef.current)fileRef.current.value=""}}><X size={18}/></button></div>}{uploadError && <p role="alert" className="mt-3 text-xs font-semibold text-red-600">{uploadError}</p>}</div><p className="mt-3 flex items-start gap-2 text-xs leading-5 text-slate-500 dark:text-slate-400"><LockKeyhole size={16} className="shrink-0"/> {t.safety.educational}: {t.safety.noRecords}.</p></div></div></section>
-
-      <section id="how-it-works" className="scroll-mt-24 px-5 py-20 sm:px-6 md:py-28 lg:px-8"><div className="mx-auto max-w-7xl"><Reveal><div className="mx-auto max-w-[640px] text-center"><p className="eyebrow inline-flex rounded-full bg-emerald-100 px-3 py-1 dark:bg-emerald-400/10">Simple by design</p><h2 className="section-heading">From prescription <span className="text-teal-600 dark:text-emerald-400">to peace of mind.</span></h2><p className="section-description mx-auto">A clear, pharmacist-led flow for the everyday essentials your family needs.</p></div></Reveal><Stagger className="relative mt-12 grid gap-4 md:grid-cols-3 md:gap-5">{[[Search,"01","Find your medicines","Browse a clear catalogue and prepare your repeat order."],[ClipboardCheck,"02","Get pharmacist verification","Prescription-only items require a human review before fulfilment."],[PackageCheck,"03","Track your order & refill","Follow order progress and stay informed about upcoming refills."]].map(([Icon,n,t,d])=>{const I=Icon as typeof Search;return <StaggerItem key={n as string}><div className="process-card relative rounded-3xl border border-[#e3efeb] bg-white p-6 shadow-[0_8px_30px_#134e4a0b] dark:border-white/10 dark:bg-[#0d1f1c]"><span className="grid h-10 w-10 place-items-center rounded-full bg-[#134e4a] text-sm font-extrabold text-white dark:bg-emerald-500 dark:text-[#071513]">{n as string}</span><span className="mt-5 grid h-12 w-12 place-items-center rounded-2xl bg-emerald-50 text-teal-700 dark:bg-emerald-400/10 dark:text-emerald-300"><I size={25}/></span><h3 className="mt-5 text-lg font-extrabold">{t as string}</h3><p className="mt-2 text-sm leading-7 text-slate-500 dark:text-slate-400">{d as string}</p></div></StaggerItem>})}</Stagger></div></section>
-
-      <section className="pharmacist-band relative overflow-hidden px-5 py-16 text-white sm:px-6 md:py-20 lg:px-8"><div className="jaali absolute inset-0 opacity-30"/><div className="relative z-10 mx-auto grid max-w-7xl overflow-hidden rounded-[2rem] bg-[#134e4a] shadow-[0_22px_60px_#134e4a30] md:grid-cols-2"><div className="p-8 md:p-12"><p className="eyebrow !text-emerald-200">BUILT AROUND REAL CARE</p><h2 className="mt-4 text-3xl font-extrabold leading-tight sm:text-4xl">The pharmacist is part of the process. Not an afterthought.</h2><p className="mt-4 text-sm leading-7 text-emerald-50/80">Every prescription-based order in our planned system follows a review-first workflow. Safety is a product requirement, not just a design badge.</p><div className="mt-6 inline-flex items-center gap-2 rounded-xl border border-white/15 bg-white/10 px-4 py-3 text-xs font-semibold"><ShieldCheck size={17}/> A companion, not a doctor</div><a className="mt-6 inline-flex min-h-11 items-center gap-3 rounded-xl bg-white px-6 py-3.5 text-sm font-bold text-[#134e4a] transition hover:bg-emerald-50" href="#faq">Learn more <ArrowRight size={18}/></a></div><div className="relative min-h-[280px]"><Image src={images.family.src} alt={images.family.alt} fill loading="lazy" sizes="(max-width: 768px) 100vw, 50vw" className="object-cover"/><div className="absolute inset-0 bg-gradient-to-r from-[#134e4a] via-[#134e4a55] to-transparent"/><div className="absolute bottom-6 right-6 rounded-2xl bg-white/90 p-4 text-[#134e4a] shadow-xl backdrop-blur"><p className="text-xs font-bold">Family care, made clearer</p><p className="mt-1 text-[11px]">A calm companion for routines</p></div></div></div></section>
-
-      <section id="faq" className="scroll-mt-24 bg-white px-5 py-20 sm:px-6 md:py-28 lg:px-8 dark:bg-[#0d1f1c]"><div className="mx-auto grid max-w-7xl gap-10 lg:grid-cols-[.8fr_1.2fr]"><div><p className="eyebrow inline-flex rounded-full bg-emerald-100 px-3 py-1 dark:bg-emerald-400/10">Good to know</p><h2 className="section-heading">{t.sections.faqTitle}</h2><p className="section-description">A few important details about how MediSaarthi is designed to work.</p></div><div className="space-y-3">{t.faq.map(({ question, answer },i)=><div key={question} className="faq-card overflow-hidden rounded-2xl border border-[#e3efeb] bg-[#fbfdfb] dark:border-white/10 dark:bg-[#12302b]"><button type="button" aria-expanded={faqOpen===i} onClick={()=>setFaqOpen(faqOpen===i?null:i)} className="flex min-h-12 w-full items-center justify-between gap-4 p-5 text-left text-sm font-bold sm:p-6"><span>{question}</span><ChevronDown size={19} className={`shrink-0 text-teal-600 transition-transform ${faqOpen===i?"rotate-180":""}`}/></button>{faqOpen===i&&<p className="px-5 pb-6 text-[15px] leading-7 text-slate-600 dark:text-slate-300 sm:px-6">{answer}</p>}</div>)}</div></div></section>
-
-      <section className="px-5 py-14 sm:px-6 md:py-20 lg:px-8"><div className="mx-auto flex max-w-7xl flex-col items-start justify-between gap-6 rounded-[2rem] bg-[#0b2b26] p-8 text-white shadow-[0_20px_55px_#134e4a25] sm:flex-row sm:items-center sm:p-12"><div><p className="text-xs font-bold uppercase tracking-[.16em] text-emerald-300">MediSaarthi</p><h2 className="mt-3 text-3xl font-extrabold">{t.sections.ctaTitle}</h2><p className="mt-3 max-w-xl text-sm text-emerald-50/75">{t.sections.ctaDescription}</p></div><div className="flex flex-wrap gap-3"><a href="#medicines" className="inline-flex min-h-11 items-center gap-2 rounded-xl bg-emerald-400 px-5 py-3 text-sm font-bold text-[#0b2b26]">{t.nav.explore} <ArrowRight size={17}/></a><a href="#faq" className="inline-flex min-h-11 items-center rounded-xl border border-white/20 px-5 py-3 text-sm font-bold text-white">{t.nav.faqs}</a></div></div></section>
-    </main>
-
-    <footer className="bg-[#0b2b26] px-5 pb-8 pt-14 text-white sm:px-6 lg:px-8"><div className="mx-auto max-w-7xl"><div className="grid gap-10 border-b border-white/10 pb-12 md:grid-cols-[1.5fr_1fr_1fr]"><div><Logo/><p className="mt-5 max-w-sm text-sm leading-7 text-emerald-50/70">{t.footer.description}</p></div><div><h3 className="text-sm font-extrabold">{t.nav.explore}</h3><div className="mt-5 flex flex-col gap-3 text-sm text-emerald-50/70"><a className="footer-link" href="#medicines">{t.nav.medicines}</a><a className="footer-link" href="#prescription">{t.nav.upload}</a><a className="footer-link" href="#how-it-works">{t.nav.howItWorks}</a></div></div><div><h3 className="text-sm font-extrabold">{t.nav.faqs}</h3><div className="mt-5 flex flex-col gap-3 text-sm text-emerald-50/70"><a className="footer-link" href="#faq">{t.nav.faqs}</a><span>{t.safety.educational}</span><span>{t.safety.noOrders} / {t.safety.noRecords}</span><span>{t.footer.credits}</span></div></div></div><div className="flex flex-col justify-between gap-3 pt-6 text-xs text-emerald-50/60 sm:flex-row"><span>© 2026 MediSaarthi. Educational project.</span><span>{t.footer.rights}</span></div></div></footer>
-    <div className="fixed inset-x-4 bottom-4 z-40 flex gap-2 rounded-2xl border border-white/20 bg-[#0b2b26]/95 p-2 shadow-2xl backdrop-blur md:hidden"><a href="#prescription" className="flex min-h-11 flex-1 items-center justify-center rounded-xl bg-white text-xs font-bold text-[#134e4a]">Upload Rx</a><a href="#medicines" className="flex min-h-11 flex-1 items-center justify-center rounded-xl bg-emerald-400 text-xs font-bold text-[#0b2b26]">Explore medicines</a></div>
-  </div>;
+      <footer className="site-footer">
+        <span>MediSaarthi</span>
+        <span>Independent educational demo · No real orders or medical records</span>
+      </footer>
+    </div>
+  );
 }

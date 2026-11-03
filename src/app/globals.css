@@ -666,3 +666,5 @@ a.side-card.help-link { flex-direction: row; align-items: center; color: var(--b
   .order-side { position: static; }
   .order-detail-card { padding: 1.25rem; }
 }
+.pay-due { border-color: var(--brand) !important; box-shadow: 0 0 0 3px color-mix(in srgb, var(--brand) 20%, transparent) !important; }
+.pay-buttons { display: flex; flex-direction: column; gap: .5rem; margin-top: .25rem; }

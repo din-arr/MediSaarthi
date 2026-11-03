@@ -15,6 +15,7 @@
     "test:routing": "tsx --test tests/routing.test.ts",
     "test:location": "tsx --test tests/location.test.ts",
     "test:rules": "tsx --test tests/rules.test.ts",
+    "reminders": "tsx scripts/send-reminders.ts",
     "test:e2e": "playwright test"
   },
   "dependencies": {

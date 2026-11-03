@@ -1,8 +1,8 @@
 "use client";
 
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
-import { Check, CheckCircle2, CircleAlert, LoaderCircle, X } from "lucide-react";
-import { FormEvent, useEffect, useRef, useState } from "react";
+import { Check, CheckCircle2, CircleAlert, KeyRound, LoaderCircle, Phone, UserRound, X } from "lucide-react";
+import { FormEvent, type ReactNode, useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useLanguage } from "../LanguageProvider";
 
@@ -25,6 +25,7 @@ export default function AuthDialog({ open, onClose }: Props) {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
+  const [demoCode, setDemoCode] = useState("");
   const [resendSeconds, setResendSeconds] = useState(30);
   const phoneRef = useRef<HTMLInputElement>(null);
   const otpRefs = useRef<Array<HTMLInputElement | null>>([]);
@@ -54,12 +55,18 @@ export default function AuthDialog({ open, onClose }: Props) {
     return () => window.clearInterval(timer);
   }, [step, resendSeconds]);
 
-  const reset = () => { setStep(1); setPhone(""); setOtp(["", "", "", "", "", ""]); setName(""); setFamilyName(""); setConsent(false); setError(""); setSuccess(false); };
+  const reset = () => { setStep(1); setPhone(""); setOtp(["", "", "", "", "", ""]); setName(""); setFamilyName(""); setConsent(false); setError(""); setSuccess(false); setDemoCode(""); };
   const close = () => { reset(); onClose(); };
-  const continuePhone = (event: FormEvent) => {
+  const continuePhone = async (event: FormEvent) => {
     event.preventDefault();
     if (!/^\d{10}$/.test(phone)) { setError(t.auth.phoneInvalid); return; }
-    setError(""); setResendSeconds(30); setStep(2);
+    setLoading(true); setError("");
+    try {
+      const response = await fetch("/api/auth/otp", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ phone }) });
+      const result = await response.json() as { demoCode?: string; error?: string };
+      if (!response.ok) throw new Error(result.error);
+      setDemoCode(result.demoCode ?? ""); setResendSeconds(30); setStep(2);
+    } catch (requestError) { setError(requestError instanceof Error ? requestError.message : t.auth.loginError); } finally { setLoading(false); }
   };
   const verify = async (event: FormEvent) => {
     event.preventDefault();
@@ -98,26 +105,26 @@ export default function AuthDialog({ open, onClose }: Props) {
 
   return <AnimatePresence>{open && <motion.div className="auth-backdrop" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onMouseDown={(event) => { if (event.target === event.currentTarget) close(); }}>
     <motion.div ref={dialogRef} className="auth-dialog" role="dialog" aria-modal="true" aria-labelledby="auth-dialog-title" initial={{ opacity: 0, scale: reduced ? 1 : .96, y: reduced ? 0 : 10 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: reduced ? 1 : .96 }} transition={{ duration: reduced ? 0 : .22 }}>
-      <button className="dialog-close" type="button" aria-label="Close" onClick={close}><X size={20} /></button>
-      <div className="auth-progress" aria-label={`${step} of 3`}>{[1, 2, 3].map((number) => <span className={step >= number ? "active" : ""} key={number} />)}</div>
+      <div className="dialog-top-row"><div className="auth-progress" aria-label={`${step} of 3`}>{[1, 2, 3].map((number) => <span className={step >= number ? "active" : ""} key={number} />)}</div><button className="dialog-close" type="button" aria-label="Close" onClick={close}><X size={20} /></button></div>
       <div className="dialog-logo"><span className="logo-mark"><Check size={18} /></span></div>
       <AnimatePresence mode="wait" initial={false}>
         {step === 1 && <motion.form key="one" variants={slide} initial="initial" animate="animate" exit="exit" onSubmit={continuePhone}>
-          <DialogHeading id="auth-dialog-title" title={t.auth.welcomeTitle} subtitle={t.auth.welcomeSubtitle} />
+          <DialogHeading id="auth-dialog-title" icon={<Phone size={22} />} title={t.auth.welcomeTitle} subtitle={t.auth.welcomeSubtitle} />
           <label className="sr-only" htmlFor="auth-phone">{t.auth.enterMobile}</label>
           <div className={`phone-input ${error ? "input-error" : ""}`}><span>+91</span><input ref={phoneRef} id="auth-phone" type="tel" inputMode="numeric" maxLength={10} placeholder={t.auth.phonePlaceholder} value={phone} onChange={(event) => { setPhone(event.target.value.replace(/\D/g, "")); setError(""); }} /></div>
           {error && <ErrorMessage message={error} />}
-          <button className="auth-primary" disabled={phone.length !== 10} type="submit">{t.auth.continue}</button>
+          <button className="auth-primary" disabled={phone.length !== 10 || loading} type="submit">{loading ? <LoaderCircle className="button-spinner" size={20} /> : t.auth.continue}</button>
         </motion.form>}
         {step === 2 && <motion.form key="two" variants={slide} initial="initial" animate="animate" exit="exit" onSubmit={verify}>
-          <DialogHeading id="auth-dialog-title" title={`${t.auth.enterCode} +91 ${phone.slice(0, 2)}XXX XXXXX`} subtitle={t.auth.demoNote} />
+          <DialogHeading id="auth-dialog-title" icon={<KeyRound size={22} />} title={`${t.auth.enterCode} +91 ${phone.slice(0, 2)}XXX XXXXX`} subtitle={t.auth.demoNote} />
+          {demoCode && <p className="demo-pill">{t.auth.demoMode} · {t.auth.demoNote.replace("Your code is ready", `your code is ${demoCode}`)}</p>}
           <div className={`otp-grid ${error ? "otp-error" : ""}`}>{otp.map((digit, index) => <motion.input key={index} ref={(element) => { otpRefs.current[index] = element; }} aria-label={`${t.auth.otpDigit} ${index + 1}`} type="text" inputMode="numeric" maxLength={6} value={digit} animate={error ? { x: [0, -4, 4, -3, 3, 0] } : { scale: digit ? [1, 1.06, 1] : 1 }} onKeyDown={(event) => { if (event.key === "Backspace" && !digit && index > 0) otpRefs.current[index - 1]?.focus(); }} onChange={(event) => updateOtp(index, event.target.value)} />)}</div>
           {error && <ErrorMessage message={error} />}
           <button className="auth-primary" disabled={loading} type="submit">{loading ? <LoaderCircle className="button-spinner" size={20} /> : success ? <Check size={20} /> : t.auth.verify}</button>
-          <div className="auth-links"><button type="button" onClick={() => { setStep(1); setOtp(["", "", "", "", "", ""]); setError(""); }}>{t.auth.changeNumber}</button><button type="button" disabled={resendSeconds > 0} onClick={() => setResendSeconds(30)}>{resendSeconds ? `${t.auth.resendCode} (${resendSeconds}s)` : t.auth.resendCode}</button></div>
+          <div className="auth-links"><button type="button" onClick={() => { setStep(1); setOtp(["", "", "", "", "", ""]); setError(""); }}>{t.auth.changeNumber}</button><button type="button" disabled={resendSeconds > 0} onClick={async () => { const response = await fetch("/api/auth/otp", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ phone }) }); const result = await response.json() as { demoCode?: string; error?: string }; if (response.ok) { setDemoCode(result.demoCode ?? ""); setResendSeconds(30); } else setError(result.error ?? t.auth.loginError); }}>{resendSeconds ? `${t.auth.resendCode} (${resendSeconds}s)` : t.auth.resendCode}</button></div>
         </motion.form>}
         {step === 3 && <motion.form key="three" variants={slide} initial="initial" animate="animate" exit="exit" onSubmit={createAccount}>
-          <DialogHeading id="auth-dialog-title" title={t.auth.createProfile} subtitle={t.auth.welcomeSubtitle} />
+          <DialogHeading id="auth-dialog-title" icon={<UserRound size={22} />} title={t.auth.createProfile} subtitle={t.auth.stepThreeSubtitle} />
           <label className="field-label" htmlFor="profile-name">{t.auth.fullName}</label><input className="text-input" id="profile-name" autoFocus value={name} placeholder={t.auth.fullNamePlaceholder} onChange={(event) => setName(event.target.value)} />
           <p className="field-label">{t.auth.preferredLanguage}</p><div className="language-cards">{(["en", "bn", "hi"] as const).map((code) => <button type="button" className={profileLanguage === code ? "language-card selected" : "language-card"} key={code} onClick={() => { setProfileLanguage(code); setLang(code); }}>{code === "en" ? "English" : code === "bn" ? "বাংলা" : "हिन्दी"}{profileLanguage === code && <Check size={16} />}</button>)}</div>
           <p className="field-label family-heading">{t.auth.familyMember} <span>{t.auth.familyMemberOptional}</span></p><input className="text-input" value={familyName} placeholder={t.auth.familyName} onChange={(event) => setFamilyName(event.target.value)} />{familyName && <select className="text-input" value={relation} onChange={(event) => setRelation(event.target.value as Relation)}><option value="Mother">{t.auth.relationMother}</option><option value="Father">{t.auth.relationFather}</option><option value="Spouse">{t.auth.relationSpouse}</option><option value="Child">{t.auth.relationChild}</option><option value="Other">{t.auth.relationOther}</option></select>}
@@ -129,8 +136,8 @@ export default function AuthDialog({ open, onClose }: Props) {
   </motion.div>}</AnimatePresence>;
 }
 
-function DialogHeading({ id, title, subtitle }: { id: string; title: string; subtitle: string }) {
-  return <div className="login-heading"><h1 id={id}>{title}</h1><p>{subtitle}</p></div>;
+function DialogHeading({ id, icon, title, subtitle }: { id: string; icon: ReactNode; title: string; subtitle: string }) {
+  return <div className="login-heading"><div className="dialog-step-icon">{icon}</div><h1 id={id}>{title}</h1><p>{subtitle}</p></div>;
 }
 
 function ErrorMessage({ message }: { message: string }) {

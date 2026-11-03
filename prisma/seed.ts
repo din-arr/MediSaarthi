@@ -59,9 +59,10 @@ async function main() {
   await prisma.store.deleteMany();
   await prisma.user.deleteMany();
 
-  const customer = await prisma.user.create({ data: { phone: "9000000001", role: UserRole.CUSTOMER, name: "Demo customer" } });
-  const pharmacist = await prisma.user.create({ data: { phone: "9000000002", role: UserRole.PHARMACIST, name: "Demo pharmacist" } });
-  const mother = await prisma.familyMember.create({ data: { name: "Madhabi Ghosh", relation: "Mother", ownerId: customer.id } });
+  const customer = await prisma.user.create({ data: { phone: "9000000001", role: UserRole.CUSTOMER, name: "Debasish Ghosh", preferredLanguage: "en" } });
+  const pharmacist = await prisma.user.create({ data: { phone: "9000000002", role: UserRole.PHARMACIST, name: "Demo pharmacist", preferredLanguage: "en" } });
+  await prisma.user.create({ data: { phone: "9000000003", role: UserRole.CUSTOMER, name: "Rina Sen", preferredLanguage: "en" } });
+  const mother = await prisma.familyMember.create({ data: { name: "Mother", relation: "Mother", userId: customer.id } });
 
   const storeMap = new Map<string, string>();
   for (const [name, area, lat, lng] of stores) {
@@ -86,7 +87,7 @@ async function main() {
   const behala = storeMap.get("Behala")!;
   const howrah = storeMap.get("Howrah Maidan")!;
 
-  const order1 = await prisma.order.create({ data: { number: "RX-50211", customerId: customer.id, familyMemberId: mother.id, storeId: saltLake, status: OrderStatus.PACKED, total: 120, items: { create: { productId: metformin, quantity: 4, unitPrice: 30, approvalStatus: ApprovalStatus.APPROVED } } } });
+  const order1 = await prisma.order.create({ data: { number: "RX-50211", customerId: customer.id, familyMemberId: mother.id, storeId: saltLake, status: OrderStatus.PACKED, total: 120, createdAt: new Date(Date.now() + 1000), items: { create: { productId: metformin, quantity: 4, unitPrice: 30, approvalStatus: ApprovalStatus.APPROVED } } } });
   const order2 = await prisma.order.create({ data: { number: "RX-50214", customerId: customer.id, storeId: behala, status: OrderStatus.AWAITING_PHARMACIST, total: 285, items: { create: { productId: telmisartan, quantity: 3, unitPrice: 95 } } } });
   const order3 = await prisma.order.create({ data: { number: "RX-50219", customerId: customer.id, storeId: howrah, status: OrderStatus.REUPLOAD_REQUESTED, total: 190, items: { create: { productId: levothyroxine, quantity: 1, unitPrice: 190 } } } });
 
@@ -94,7 +95,7 @@ async function main() {
   await prisma.approval.create({ data: { prescriptionId: prescription1.id, pharmacistId: pharmacist.id, notes: "Verified for demo order." } });
   await prisma.prescription.create({ data: { uploadedById: customer.id, orderId: order2.id, encryptedFilePath: "encrypted/demo/rx-50214.enc", aiDraft: { medicine: "Telmisartan 40 mg", quantity: 3 }, status: PrescriptionStatus.PENDING } });
   await prisma.prescription.create({ data: { uploadedById: customer.id, orderId: order3.id, encryptedFilePath: "encrypted/demo/rx-50219.enc", aiDraft: Prisma.JsonNull, status: PrescriptionStatus.REUPLOAD_REQUESTED } });
-  await prisma.refill.create({ data: { customerId: customer.id, productId: metformin, dosePerDay: 2, lastQty: 60, nextRunOutDate: new Date("2026-12-01") } });
+  await prisma.refill.create({ data: { customerId: customer.id, productId: metformin, dosePerDay: 2, lastQty: 60, nextRunOutDate: new Date(Date.now() + 4 * 24 * 60 * 60 * 1000) } });
 
   await prisma.ruleConfig.createMany({ data: [
     { key: "schedule_h_requires_prescription", value: { requiresPrescription: true, pharmacistApproval: true }, description: "Schedule H medicines require a valid prescription and pharmacist approval." },

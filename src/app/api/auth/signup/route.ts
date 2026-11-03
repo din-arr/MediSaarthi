@@ -7,16 +7,9 @@ export async function POST(request: Request) {
   const phone = body.phone?.replace(/\D/g, "");
   if (!phone || !body.name?.trim() || !body.consent) return NextResponse.json({ error: "Invalid profile." }, { status: 400 });
 
-  let user = { id: `demo-${phone}`, phone, role: "CUSTOMER" as const, name: body.name.trim() };
-  if (process.env.DATABASE_URL) {
-    try {
-      const databaseUser = await prisma.user.upsert({ where: { phone }, update: { name: body.name.trim() }, create: { phone, name: body.name.trim(), role: "CUSTOMER" } });
-      user = { id: databaseUser.id, phone: databaseUser.phone, role: "CUSTOMER", name: databaseUser.name ?? body.name.trim() };
-      if (body.familyName?.trim()) await prisma.familyMember.create({ data: { ownerId: databaseUser.id, name: body.familyName.trim(), relation: body.relation ?? "Other" } });
-    } catch (error) {
-      console.warn("Database profile creation unavailable; using a demo session.", error);
-    }
-  }
+  const databaseUser = await prisma.user.create({ data: { phone, name: body.name.trim(), preferredLanguage: body.language ?? "en", role: "CUSTOMER" } });
+  if (body.familyName?.trim()) await prisma.familyMember.create({ data: { userId: databaseUser.id, name: body.familyName.trim(), relation: body.relation ?? "Other" } });
+  const user = { id: databaseUser.id, phone: databaseUser.phone, role: "CUSTOMER" as const, name: databaseUser.name ?? body.name.trim() };
   const response = NextResponse.json({ role: user.role });
   response.cookies.set(SESSION_COOKIE, await createSession({ userId: user.id, role: user.role, name: user.name }), { httpOnly: true, sameSite: "lax", secure: process.env.NODE_ENV === "production", path: "/", maxAge: 60 * 60 * 24 * 7 });
   return response;

@@ -3,7 +3,7 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
+  provider = "sqlite"
   url      = env("DATABASE_URL")
 }
 
@@ -46,45 +46,47 @@ enum PrescriptionStatus {
 }
 
 model User {
-  id                    String                 @id @default(cuid())
-  phone                 String                 @unique
+  id                    String                  @id @default(cuid())
+  phone                 String                  @unique
   role                  UserRole
   name                  String?
-  createdAt             DateTime               @default(now())
-  updatedAt             DateTime               @updatedAt
-  familyMembers         FamilyMember[]         @relation("FamilyMemberOwner")
-  prescriptions         Prescription[]        @relation("PrescriptionUploader")
-  approvals             Approval[]             @relation("PharmacistApprovals")
+  preferredLanguage     String                  @default("en")
+  createdAt             DateTime                @default(now())
+  updatedAt             DateTime                @updatedAt
+  familyMembers         FamilyMember[]          @relation("FamilyMemberOwner")
+  prescriptions         Prescription[]          @relation("PrescriptionUploader")
+  approvals             Approval[]              @relation("PharmacistApprovals")
   prescriptionAccessLog PrescriptionAccessLog[]
-  orders                Order[]                @relation("CustomerOrders")
+  orders                Order[]                 @relation("CustomerOrders")
   refills               Refill[]
 }
 
 model FamilyMember {
-  id        String   @id @default(cuid())
-  name      String
-  relation  String
+  id          String    @id @default(cuid())
+  name        String
+  relation    String
   dateOfBirth DateTime?
-  ownerId   String
-  owner     User     @relation("FamilyMemberOwner", fields: [ownerId], references: [id], onDelete: Cascade)
-  orders    Order[]  @relation("FamilyMemberOrders")
-  createdAt DateTime @default(now())
+  userId      String
+  owner       User      @relation("FamilyMemberOwner", fields: [userId], references: [id], onDelete: Cascade)
+  orders      Order[]   @relation("FamilyMemberOrders")
+  createdAt   DateTime  @default(now())
 }
 
 model Product {
-  id           String         @id @default(cuid())
-  name         String
-  strength     String
-  packSize     String
-  form         String
-  schedule     Schedule
-  price        Decimal        @db.Decimal(10, 2)
-  createdAt    DateTime       @default(now())
-  updatedAt    DateTime       @updatedAt
-  stock        Stock[]
-  orderItems   OrderItem[]
-  refills      Refill[]
+  id              String            @id @default(cuid())
+  name            String
+  strength        String
+  packSize        String
+  form            String
+  schedule        Schedule
+  price           Decimal
+  createdAt       DateTime          @default(now())
+  updatedAt       DateTime          @updatedAt
+  stock           Stock[]
+  orderItems      OrderItem[]
+  refills         Refill[]
   registerEntries H1RegisterEntry[]
+
   @@unique([name, strength, packSize])
 }
 
@@ -107,25 +109,26 @@ model Stock {
   date      DateTime @default(now())
   store     Store    @relation(fields: [storeId], references: [id], onDelete: Cascade)
   product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+
   @@unique([storeId, productId, date])
   @@index([storeId, productId])
 }
 
 model Order {
-  id               String       @id @default(cuid())
-  number           String       @unique
-  customerId       String
-  familyMemberId   String?
-  storeId          String?
-  status           OrderStatus  @default(DRAFT)
-  total            Decimal      @db.Decimal(10, 2)
-  createdAt        DateTime     @default(now())
-  updatedAt        DateTime     @updatedAt
-  customer         User         @relation("CustomerOrders", fields: [customerId], references: [id])
-  familyMember     FamilyMember? @relation("FamilyMemberOrders", fields: [familyMemberId], references: [id])
-  store            Store?       @relation(fields: [storeId], references: [id])
-  items            OrderItem[]
-  prescription     Prescription?
+  id             String        @id @default(cuid())
+  number         String        @unique
+  customerId     String
+  familyMemberId String?
+  storeId        String?
+  status         OrderStatus   @default(DRAFT)
+  total          Decimal
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+  customer       User          @relation("CustomerOrders", fields: [customerId], references: [id])
+  familyMember   FamilyMember? @relation("FamilyMemberOrders", fields: [familyMemberId], references: [id])
+  store          Store?        @relation(fields: [storeId], references: [id])
+  items          OrderItem[]
+  prescription   Prescription?
 }
 
 model OrderItem {
@@ -133,7 +136,7 @@ model OrderItem {
   orderId        String
   productId      String
   quantity       Int
-  unitPrice      Decimal        @db.Decimal(10, 2)
+  unitPrice      Decimal
   approvalStatus ApprovalStatus @default(PENDING)
   rejectReason   String?
   order          Order          @relation(fields: [orderId], references: [id], onDelete: Cascade)
@@ -141,17 +144,17 @@ model OrderItem {
 }
 
 model Prescription {
-  id              String             @id @default(cuid())
-  uploadedById    String
-  orderId         String?            @unique
+  id                String                  @id @default(cuid())
+  uploadedById      String
+  orderId           String?                 @unique
   encryptedFilePath String
-  aiDraft         Json?
-  status          PrescriptionStatus @default(PENDING)
-  uploadedAt      DateTime           @default(now())
-  uploadedBy      User               @relation("PrescriptionUploader", fields: [uploadedById], references: [id])
-  order           Order?             @relation(fields: [orderId], references: [id])
-  approvals       Approval[]
-  accessLogs      PrescriptionAccessLog[]
+  aiDraft           Json?
+  status            PrescriptionStatus      @default(PENDING)
+  uploadedAt        DateTime                @default(now())
+  uploadedBy        User                    @relation("PrescriptionUploader", fields: [uploadedById], references: [id])
+  order             Order?                  @relation(fields: [orderId], references: [id])
+  approvals         Approval[]
+  accessLogs        PrescriptionAccessLog[]
 }
 
 model Approval {
@@ -182,6 +185,7 @@ model PrescriptionAccessLog {
   action         String
   user           User         @relation(fields: [userId], references: [id])
   prescription   Prescription @relation(fields: [prescriptionId], references: [id], onDelete: Cascade)
+
   @@index([prescriptionId, timestamp])
 }
 
@@ -189,7 +193,7 @@ model Refill {
   id             String   @id @default(cuid())
   customerId     String
   productId      String
-  dosePerDay     Decimal  @db.Decimal(10, 2)
+  dosePerDay     Decimal
   lastQty        Int
   nextRunOutDate DateTime
   customer       User     @relation(fields: [customerId], references: [id])
@@ -202,4 +206,15 @@ model RuleConfig {
   value       Json
   description String?
   updatedAt   DateTime @updatedAt
+}
+
+model OtpRequest {
+  id        String   @id @default(cuid())
+  phone     String
+  codeHash  String
+  expiresAt DateTime
+  attempts  Int      @default(0)
+  createdAt DateTime @default(now())
+
+  @@index([phone, createdAt])
 }

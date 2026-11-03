@@ -36,17 +36,23 @@ The easiest way to deploy your Next.js app is to use the [Vercel Platform](https
 Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
 ## Database setup
 
-The app uses PostgreSQL through Prisma. Create a free project with either [Supabase](https://supabase.com/) or [Neon](https://neon.tech/), copy its PostgreSQL connection string, and put it in a local `.env` file:
+Local development uses SQLite. Copy the example environment and create the database:
 
 ```bash
 cp .env.example .env
 ```
 
-Set `DATABASE_URL` in `.env`, then create the schema and load the demo data:
+Then create the schema and load the demo data:
 
 ```bash
 npm run db:migrate -- --name init
 npm run db:seed
 ```
 
-The seed creates six Kolkata/Howrah stores, sample products and stock, the three demo orders, and demo users `9000000001` (customer) and `9000000002` (pharmacist). Never put production credentials in `.env.example` or commit `.env`.
+The seed creates six Kolkata/Howrah stores, sample products and stock, the demo order for Debasish Ghosh (`9000000001`), pharmacist (`9000000002`), and Rina Sen (`9000000003`). Never commit `.env` or production credentials. To switch to PostgreSQL later, change the Prisma provider to `postgresql` and set `DATABASE_URL` to a PostgreSQL connection string.
+
+### OTP providers
+
+`OTP_PROVIDER=mock` is the default. It generates a random code, stores only its SHA-256 hash for five minutes, and returns the code in the UI demo banner. Requests are limited to three per phone per ten minutes and verification allows five attempts.
+
+For Firebase, set `OTP_PROVIDER=firebase` plus `FIREBASE_PROJECT_ID`, `FIREBASE_CLIENT_EMAIL`, and `FIREBASE_PRIVATE_KEY`. Configure Firebase Authentication > Phone, enable invisible reCAPTCHA in the browser Firebase client flow, and add test phone numbers under Authentication > Sign-in method > Phone numbers for testing. The server verifies the resulting Firebase ID token with `firebase-admin`.

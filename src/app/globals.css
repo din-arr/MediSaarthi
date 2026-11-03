@@ -723,3 +723,17 @@ a.side-card.help-link { flex-direction: row; align-items: center; color: var(--b
 .bell-item small { color: var(--muted); font-size: .75rem; }
 .bell-channel { color: var(--brand); font-size: .72rem; font-weight: 700; text-transform: uppercase; }
 .reminder-job { display: flex; align-items: center; justify-content: space-between; gap: 1rem; margin-top: 1.25rem; } .reminder-job h2 { margin: 0; font-size: 1.1rem; }
+
+/* test-mode UPI */
+.upi-dialog { max-width: 28rem; }
+.upi-tabs { display: flex; width: 100%; margin: .5rem 0 1rem; }
+.upi-tabs button { display: inline-flex; flex: 1; align-items: center; justify-content: center; gap: .4rem; }
+.upi-qr-wrap { display: flex; flex-direction: column; align-items: center; gap: .75rem; text-align: center; }
+.upi-qr { width: 13rem; height: 13rem; border-radius: .75rem; box-shadow: 0 8px 24px rgb(15 23 42 / 12%); }
+.upi-apps { display: grid; width: 100%; grid-template-columns: repeat(4, 1fr); gap: .5rem; }
+.upi-apps .secondary-button { justify-content: center; min-height: 2.6rem; padding: 0 .4rem; font-size: .85rem; text-decoration: none; }
+.upi-dialog .auth-primary { width: 100%; margin-top: 1rem; }
+.upi-fail { display: block; margin: .5rem auto 0; color: var(--muted); font-size: .85rem; }
+.upi-state { display: flex; flex-direction: column; align-items: center; gap: .5rem; padding: 2rem 0; text-align: center; }
+.upi-state.ok { color: #16a34a; }
+.button-spinner.big { width: 2.5rem; height: 2.5rem; color: var(--brand); }

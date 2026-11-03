@@ -5,6 +5,7 @@ import { useCallback, useEffect, useState } from "react";
 import PageShell from "../../../components/customer/PageShell";
 import OrderTimeline, { OrderStatusPill } from "../../../components/customer/OrderTimeline";
 import { useLanguage } from "../../../components/LanguageProvider";
+import UpiDialog from "../../../components/customer/UpiDialog";
 
 type Item = { name: string; quantity: number; originalQty: number | null; approvalStatus: string; rejectReason: string | null; schedule: string };
 type Order = { id: string; number: string; status: string; store: string; distanceKm: number | null; routingReason: string | null; missingItems: string[] | null; createdAt: string; familyMember: string; decisionReason: string | null; total: number; paymentMethod: string | null; paymentStatus: string; paymentRef: string | null; invoiceNumber: string | null; riderName: string | null; items: Item[] };
@@ -16,6 +17,7 @@ export default function OrderDetail({ params }: { params: Promise<{ id: string }
   const [sending, setSending] = useState(false);
   const [error, setError] = useState("");
   const [paying, setPaying] = useState<"UPI" | "COD" | null>(null);
+  const [upiOpen, setUpiOpen] = useState(false);
 
   const load = useCallback(async () => {
     const { id } = await params;
@@ -35,14 +37,15 @@ export default function OrderDetail({ params }: { params: Promise<{ id: string }
     setFile(null); await load();
   };
 
-  const pay = async (method: "UPI" | "COD") => {
-    if (!order) return;
+  const pay = async (method: "UPI" | "COD", extra: { upiId?: string; outcome?: "success" | "failure" } = {}) => {
+    if (!order) return "Order not loaded.";
     setPaying(method); setError("");
-    const response = await fetch(`/api/orders/${order.id}/pay`, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ method }) });
+    const response = await fetch(`/api/orders/${order.id}/pay`, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ method, ...extra }) });
     const result = await response.json();
     setPaying(null);
-    if (!response.ok) { setError(result.error); return; }
+    if (!response.ok) { if (method === "COD") setError(result.error); return result.error as string; }
     await load();
+    return null;
   };
 
   const isRx = (schedule: string) => schedule === "H" || schedule === "H1";
@@ -80,13 +83,14 @@ export default function OrderDetail({ params }: { params: Promise<{ id: string }
         <section className={`flow-card side-card ${order.status === "APPROVED" && order.paymentStatus === "UNPAID" ? "pay-due" : ""}`}><h3><Clock3 size={18} />Payment · ₹{order.total}</h3>
           {order.paymentStatus === "PAID" ? <p><strong className="ok-note">Paid by UPI</strong><br /><span className="muted-small">Ref {order.paymentRef} · test mode</span></p>
           : order.paymentStatus === "COD_PENDING" ? <p><strong>Cash on delivery</strong><br /><span className="muted-small">Pay ₹{order.total} when it arrives.</span></p>
-          : order.status === "APPROVED" ? <><p className="muted-small">Approved by the pharmacist. How would you like to pay?</p><div className="pay-buttons"><button className="auth-primary" type="button" disabled={paying !== null} onClick={() => pay("UPI")}>{paying === "UPI" ? "Paying…" : "Pay by UPI"}</button><button className="secondary-button" type="button" disabled={paying !== null} onClick={() => pay("COD")}>Cash on delivery</button></div><small className="muted-small">Test mode, no real money moves.</small></>
+          : order.status === "APPROVED" ? <><p className="muted-small">Approved by the pharmacist. How would you like to pay?</p><div className="pay-buttons"><button className="auth-primary" type="button" disabled={paying !== null} onClick={() => setUpiOpen(true)}>Pay by UPI</button><button className="secondary-button" type="button" disabled={paying !== null} onClick={() => pay("COD")}>Cash on delivery</button></div><small className="muted-small">Test mode, no real money moves.</small></>
           : <p className="muted-small">You pay after the pharmacist approves: UPI or cash on delivery (test mode).</p>}
           {order.invoiceNumber && <span className="muted-small">Store invoice {order.invoiceNumber}</span>}
           {order.riderName && <span className="muted-small">Rider: {order.riderName}</span>}
         </section>
         <a className="flow-card side-card help-link" href={`mailto:support@medisaarthi.demo?subject=Help with order ${order.number}`}><HelpCircle size={18} />{t.dashboard.needHelp}</a>
       </aside>
+      <UpiDialog open={upiOpen} amount={order.total} orderNumber={order.number} onClose={() => setUpiOpen(false)} onPay={(body) => pay("UPI", body)} />
     </div> : <div className="home-skeleton"><span /><span /></div>}
   </PageShell>;
 }

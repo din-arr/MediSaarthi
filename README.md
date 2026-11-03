@@ -1,68 +1,102 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# MediSaarthi
 
-## Getting Started
+Medicine reordering for a Kolkata pharmacy chain (46 stores across Kolkata and Howrah). Customers reorder monthly medicines in a minute, a registered pharmacist checks every prescription, the nearest store with stock packs it, and customers get reminded before they run out.
 
-First, run the development server:
+> Independent educational demo. Payments, SMS/WhatsApp and outside systems are mocked. Don't upload real prescriptions.
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+## What's in it
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+| For | Screen | What it does |
+|---|---|---|
+| Customer | Home | Big reorder button, family switcher, "running low" reminders, latest order |
+| Customer | Upload | Prescription upload, AI draft of the items, delivery address, nearest store |
+| Customer | Order | Status timeline, pharmacist decisions, re-upload, UPI / cash on delivery |
+| Pharmacist | Queue | Oldest first, waiting time, schedule, AI confidence |
+| Pharmacist | Review | Prescription beside the items; approve, edit or reject with a reason |
+| Store | Store orders | Pick checklist, store invoice number, handover to rider |
+| Operations | Dashboard | Orders by store, median verification time, rejection reasons, Schedule H safety check |
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+Also: OTP login, family profiles, saved addresses, search, Bengali / Hindi / English, light and dark mode.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
-
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
-## Database setup
-
-Local development uses SQLite. Copy the example environment and create the database:
+## Run it
 
 ```bash
-cp .env.example .env
-```
-
-Then create the schema and load the demo data:
-
-```bash
-npm run db:migrate -- --name init
+npm install
+cp .env.example .env          # then fill in AUTH_SECRET and PRESCRIPTION_KEY
+openssl rand -base64 32       # use this for PRESCRIPTION_KEY
+npx prisma migrate dev
 npm run db:seed
+npm run dev
 ```
 
-The seed creates six Kolkata/Howrah stores, sample products and stock, the demo order for Debasish Ghosh (`9000000001`), pharmacist (`9000000002`), and Rina Sen (`9000000003`). Never commit `.env` or production credentials. To switch to PostgreSQL later, change the Prisma provider to `postgresql` and set `DATABASE_URL` to a PostgreSQL connection string.
+Open http://localhost:3000.
 
-### OTP providers
+### Demo logins (OTP is shown on screen in demo mode)
 
-`OTP_PROVIDER=mock` is the default. It generates a random code, stores only its SHA-256 hash for five minutes, and returns the code in the UI demo banner. Requests are limited to three per phone per ten minutes and verification allows five attempts.
+| Phone | Role | What you'll see |
+|---|---|---|
+| 9000000001 | Customer, Debasish Ghosh | Order for his mother, packed at Salt Lake |
+| 9000000003 | Customer, Rina Sen | Telmisartan order waiting for a pharmacist |
+| 9000000004 | Customer, Arif Mondal | Levothyroxine order needing a clearer photo |
+| 9000000002 | Pharmacist, Ananya Roy (WB-PH-21487) | Queue, store orders, dashboard |
 
-For Firebase, set `OTP_PROVIDER=firebase` plus `FIREBASE_PROJECT_ID`, `FIREBASE_CLIENT_EMAIL`, and `FIREBASE_PRIVATE_KEY`. Configure Firebase Authentication > Phone, enable invisible reCAPTCHA in the browser Firebase client flow, and add test phone numbers under Authentication > Sign-in method > Phone numbers for testing. The server verifies the resulting Firebase ID token with `firebase-admin`.
+Seed data matches the client's sample orders RX-50211, RX-50214 and RX-50219.
 
-Prescription uploads require `PRESCRIPTION_KEY`, a base64-encoded 32-byte AES-256-GCM key. Generate one with `openssl rand -base64 32`; uploaded files are encrypted under `uploads/`, which is gitignored.
+### Useful scripts
 
-Set `OPENAI_API_KEY` optionally to enable image prescription drafting; without it the app uses seeded-product mock matches.
+```bash
+npm run test:rules      # Schedule H/H1/X rules
+npm run test:routing    # store routing
+npm run stock:import -- data/stock-2026-11-03.csv   # daily stock CSV
+npm run reminders       # send refill reminders (normally a daily job)
+```
 
-### Design decisions
+## How it's built
 
-There is no chatbot: MediSaarthi must never give medical advice, and the product intentionally avoids clutter. AI is used only to draft prescription items for pharmacist review; a pharmacist makes the final decision.
+```
+Browser (customer phone / pharmacist desktop)
+   │
+Next.js app ── pages in src/app/**/page.tsx
+   │          API in src/app/api/**/route.ts
+   │
+   ├─ Prisma ── SQLite locally (Postgres in production)
+   ├─ Encrypted prescriptions in /uploads (AES-256-GCM)
+   └─ Mock providers: OTP, payments, SMS/WhatsApp, AI reading
+```
 
-Support contact details are configured with `NEXT_PUBLIC_SUPPORT_EMAIL` and `NEXT_PUBLIC_SUPPORT_WHATSAPP`. Store phone numbers are seeded with each store and can be changed in the seed data.
+- **Routing** (`src/lib/routing.ts`): nearest open store within its delivery radius that has every item in today's stock. Falls back to the store with the most items and says what's missing. Stock is reserved when the order is placed and released if it's rejected.
+- **Refill reminders**: when a pharmacist approves, the run-out date is worked out as quantity × pack size ÷ tablets per day. The reminder job texts people 5 days before.
+
+## The hard part: Schedule H blocking
+
+All the rules live in `src/lib/pharmacy/rules.ts` and run **on the server** for every status change, including packing and dispatch at the store. Hiding a button isn't enough.
+
+- **Schedule X / narcotics**: can't be added to an order at all.
+- **Schedule H**: the order can't be approved, packed or dispatched until every item has a pharmacist's decision, the approver has a registration number, and the prescription is inside its validity window (180 days, configurable).
+- **Schedule H1**: same, plus an H1 register entry (prescriber, registration no., patient, address, quantity, pharmacist) written in the same transaction as the approval.
+- Rules are stored in a `RuleConfig` table, because online pharmacy rules in India aren't final.
+- The dashboard checks every dispatched order and shows a red banner if any H/H1 item ever left without approval.
+
+`tests/rules.test.ts` covers these cases.
+
+## Privacy (DPDP Act 2023)
+
+- Prescriptions are encrypted with AES-256-GCM before they touch the disk, and are only decrypted for pharmacists.
+- Every view is written to `PrescriptionAccessLog`. Every approve, edit and reject is written to `AuditLog`, with before and after values.
+
+## AI
+
+AI only drafts. It reads the prescription and suggests products and quantities with a confidence score. Low confidence is highlighted for the pharmacist, unreadable prescriptions get a re-upload request, and a registered pharmacist decides every item. The app never gives medical advice.
+
+## Design decisions
+
+- **Calm and minimal**: one teal brand colour, status colours only where they mean something, 17px body text, a big reorder button. Customers are often worried, or ordering for a parent.
+- **No chatbot**: the brief says the system must never give medical advice, and the client doesn't want clutter.
+- **One login flow**: OTP works for both new and returning users, so no "do I have an account?" confusion.
+- **Only Kolkata and Howrah**: that's where the 46 stores are. The service area is configurable.
+
+## Not done yet
+
+- Cheaper generic suggestions with customer consent
+- Real SMS/WhatsApp, payments and OTP providers (all mocked)
+- Postgres + cloud file storage for deployment

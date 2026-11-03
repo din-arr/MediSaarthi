@@ -737,3 +737,12 @@ a.side-card.help-link { flex-direction: row; align-items: center; color: var(--b
 .upi-state { display: flex; flex-direction: column; align-items: center; gap: .5rem; padding: 2rem 0; text-align: center; }
 .upi-state.ok { color: #16a34a; }
 .button-spinner.big { width: 2.5rem; height: 2.5rem; color: var(--brand); }
+
+/* cart */
+.cart-controls { display: flex; align-items: center; gap: .75rem; }
+.cart-line { min-width: 4rem; text-align: right; }
+.cart-total { font-size: 1.75rem; }
+.add-btn.done { border-color: #16a34a; color: #16a34a; }
+.empty-state { display: flex; flex-direction: column; align-items: center; gap: .6rem; padding: 3rem 1.5rem; text-align: center; color: var(--muted); }
+.empty-state strong { color: var(--text); font-size: 1.15rem; }
+@media (max-width: 600px) { .order-item-row { flex-wrap: wrap; } .cart-controls { width: 100%; justify-content: space-between; } }

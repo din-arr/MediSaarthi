@@ -10,6 +10,9 @@
     "lint": "eslint",
     "db:migrate": "prisma migrate dev",
     "db:seed": "prisma db seed",
+    "stock:generate": "tsx scripts/generate-stock.ts",
+    "stock:import": "tsx scripts/import-stock.ts",
+    "test:routing": "tsx --test tests/routing.test.ts",
     "test:e2e": "playwright test"
   },
   "dependencies": {

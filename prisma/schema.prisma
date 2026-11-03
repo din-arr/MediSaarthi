@@ -26,6 +26,7 @@ enum OrderStatus {
   REUPLOAD_REQUESTED
   APPROVED
   REJECTED
+  PARTIAL
   PACKED
   OUT_FOR_DELIVERY
   DELIVERED
@@ -59,6 +60,7 @@ model User {
   prescriptionAccessLog PrescriptionAccessLog[]
   orders                Order[]                 @relation("CustomerOrders")
   refills               Refill[]
+  addresses             Address[]
 }
 
 model FamilyMember {
@@ -74,6 +76,7 @@ model FamilyMember {
 
 model Product {
   id              String            @id @default(cuid())
+  code            String            @unique @default("PRODUCT")
   name            String
   strength        String
   packSize        String
@@ -91,14 +94,40 @@ model Product {
 }
 
 model Store {
-  id        String   @id @default(cuid())
-  name      String
-  area      String   @unique
+  id               String   @id @default(cuid())
+  code             String   @unique @default("STORE")
+  name             String
+  area             String   @unique
+  pincode          String   @default("700001")
+  lat              Float
+  lng              Float
+  openHours        String   @default("08:00-22:00")
+  deliveryRadiusKm Float    @default(8)
+  stock            Stock[]
+  orders           Order[]
+  createdAt        DateTime @default(now())
+}
+
+model Pincode {
+  id        String    @id @default(cuid())
+  code      String    @unique
   lat       Float
   lng       Float
-  stock     Stock[]
-  orders    Order[]
-  createdAt DateTime @default(now())
+  addresses Address[]
+}
+
+model Address {
+  id         String   @id @default(cuid())
+  userId     String
+  label      String
+  line       String
+  pincode    String
+  lat        Float
+  lng        Float
+  createdAt  DateTime @default(now())
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  pin        Pincode  @relation(fields: [pincode], references: [code])
+  orders     Order[]
 }
 
 model Stock {
@@ -120,6 +149,11 @@ model Order {
   customerId     String
   familyMemberId String?
   storeId        String?
+  addressId      String?
+  deliveryLat    Float?
+  deliveryLng    Float?
+  routingReason  String?
+  missingItems   Json?
   status         OrderStatus   @default(DRAFT)
   total          Decimal
   createdAt      DateTime      @default(now())
@@ -127,6 +161,7 @@ model Order {
   customer       User          @relation("CustomerOrders", fields: [customerId], references: [id])
   familyMember   FamilyMember? @relation("FamilyMemberOrders", fields: [familyMemberId], references: [id])
   store          Store?        @relation(fields: [storeId], references: [id])
+  address        Address?      @relation(fields: [addressId], references: [id])
   items          OrderItem[]
   prescription   Prescription?
 }

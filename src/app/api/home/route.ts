@@ -3,15 +3,16 @@ import { NextResponse } from "next/server";
 import { prisma } from "../../../lib/prisma";
 import { readSession, SESSION_COOKIE } from "../../../lib/session";
 
-export async function GET() {
+export async function GET(request: Request) {
   const session = await readSession((await cookies()).get(SESSION_COOKIE)?.value);
   if (!session || session.role !== "CUSTOMER") return NextResponse.json({ error: "Unauthenticated" }, { status: 401 });
+  const familyMemberId = new URL(request.url).searchParams.get("familyMemberId");
   const user = await prisma.user.findUnique({
     where: { id: session.userId },
     include: {
       familyMembers: true,
       refills: { include: { product: true }, orderBy: { nextRunOutDate: "asc" } },
-      orders: { include: { store: true, items: { include: { product: true } } }, orderBy: { createdAt: "desc" }, take: 3 },
+      orders: { where: familyMemberId ? { familyMemberId } : undefined, include: { store: true, items: { include: { product: true } } }, orderBy: { createdAt: "desc" }, take: 3 },
     },
   });
   if (!user) return NextResponse.json({ error: "User not found" }, { status: 404 });
@@ -22,6 +23,6 @@ export async function GET() {
     greeting,
     familyMembers: user.familyMembers.map((member) => ({ id: member.id, name: member.name, relation: member.relation })),
     refills: user.refills.map((refill) => ({ product: `${refill.product.name} ${refill.product.strength}`, nextRunOutDate: refill.nextRunOutDate.toISOString(), days: Math.max(0, Math.ceil((refill.nextRunOutDate.getTime() - Date.now()) / 86400000)), lastQty: refill.lastQty })),
-    orders: user.orders.map((order) => ({ number: order.number, status: order.status, total: Number(order.total), createdAt: order.createdAt.toISOString(), store: order.store?.name ?? "", items: order.items.map((item) => `${item.product.name} ${item.product.strength}`) })),
+    orders: user.orders.map((order) => ({ id: order.id, number: order.number, status: order.status, total: Number(order.total), createdAt: order.createdAt.toISOString(), store: order.store?.name ?? "", items: order.items.map((item) => `${item.product.name} ${item.product.strength}`) })),
   });
 }

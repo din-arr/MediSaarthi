@@ -9,6 +9,6 @@ async function proxy(request: NextRequest) {
   return NextResponse.next();
 }
 
-export const config = { matcher: ["/home/:path*", "/pharmacist/queue/:path*"] };
+export const config = { matcher: ["/home/:path*", "/pharmacist/queue/:path*", "/upload/:path*", "/reorder/:path*", "/orders/:path*", "/search/:path*", "/family/:path*", "/profile/:path*"] };
 
 export default proxy;

@@ -20,7 +20,8 @@ export default function AuthDialog({ open, onClose }: Props) {
   const [name, setName] = useState("");
   const [profileLanguage, setProfileLanguage] = useState(lang);
   const [familyName, setFamilyName] = useState("");
-  const [relation, setRelation] = useState<Relation>("Mother");
+  const [relation, setRelation] = useState<Relation | null>(null);
+  const [familyMembers, setFamilyMembers] = useState<Array<{ name: string; relation: Relation }>>([]);
   const [consent, setConsent] = useState(false);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
@@ -55,7 +56,7 @@ export default function AuthDialog({ open, onClose }: Props) {
     return () => window.clearInterval(timer);
   }, [step, resendSeconds]);
 
-  const reset = () => { setStep(1); setPhone(""); setOtp(["", "", "", "", "", ""]); setName(""); setFamilyName(""); setConsent(false); setError(""); setSuccess(false); setDemoCode(""); };
+  const reset = () => { setStep(1); setPhone(""); setOtp(["", "", "", "", "", ""]); setName(""); setFamilyName(""); setRelation(null); setFamilyMembers([]); setConsent(false); setError(""); setSuccess(false); setDemoCode(""); };
   const close = () => { reset(); onClose(); };
   const continuePhone = async (event: FormEvent) => {
     event.preventDefault();
@@ -96,7 +97,9 @@ export default function AuthDialog({ open, onClose }: Props) {
     if (!name.trim() || !consent) { setError(t.auth.profileError); return; }
     setLoading(true); setError("");
     try {
-      const response = await fetch("/api/auth/signup", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ phone, name: name.trim(), language: profileLanguage, familyName: familyName.trim(), relation, consent }) });
+      if (relation && !familyName.trim()) { setError(t.auth.familyNameRequired); setLoading(false); return; }
+      const members = relation && familyName.trim() ? [...familyMembers, { name: familyName.trim(), relation }] : familyMembers;
+      const response = await fetch("/api/auth/signup", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ phone, name: name.trim(), language: profileLanguage, familyMembers: members, consent }) });
       if (!response.ok) throw new Error();
       setSuccess(true); window.setTimeout(() => { close(); router.push("/home"); }, 700);
     } catch { setError(t.auth.loginError); } finally { setLoading(false); }
@@ -127,7 +130,7 @@ export default function AuthDialog({ open, onClose }: Props) {
           <DialogHeading id="auth-dialog-title" icon={<UserRound size={22} />} title={t.auth.createProfile} subtitle={t.auth.stepThreeSubtitle} />
           <label className="field-label" htmlFor="profile-name">{t.auth.fullName}</label><input className="text-input" id="profile-name" autoFocus value={name} placeholder={t.auth.fullNamePlaceholder} onChange={(event) => setName(event.target.value)} />
           <p className="field-label">{t.auth.preferredLanguage}</p><div className="language-cards">{(["en", "bn", "hi"] as const).map((code) => <button type="button" className={profileLanguage === code ? "language-card selected" : "language-card"} key={code} onClick={() => { setProfileLanguage(code); setLang(code); }}>{code === "en" ? "English" : code === "bn" ? "বাংলা" : "हिन्दी"}{profileLanguage === code && <Check size={16} />}</button>)}</div>
-          <p className="field-label family-heading">{t.auth.familyMember} <span>{t.auth.familyMemberOptional}</span></p><input className="text-input" value={familyName} placeholder={t.auth.familyName} onChange={(event) => setFamilyName(event.target.value)} />{familyName && <select className="text-input" value={relation} onChange={(event) => setRelation(event.target.value as Relation)}><option value="Mother">{t.auth.relationMother}</option><option value="Father">{t.auth.relationFather}</option><option value="Spouse">{t.auth.relationSpouse}</option><option value="Child">{t.auth.relationChild}</option><option value="Other">{t.auth.relationOther}</option></select>}
+          <p className="field-label family-heading">{t.auth.familyMember} <span>{t.auth.familyMemberOptional}</span></p><div className="relation-chips">{(["Mother", "Father", "Spouse", "Child", "Other"] as Relation[]).map((value) => <button type="button" className={relation === value ? "relation-chip selected" : "relation-chip"} key={value} onClick={() => setRelation(value)}>{value === "Mother" ? t.auth.relationMother : value === "Father" ? t.auth.relationFather : value === "Spouse" ? t.auth.relationSpouse : value === "Child" ? t.auth.relationChild : t.auth.relationOther}</button>)}</div>{relation && <><label className="field-label" htmlFor="family-name">{t.auth.theirName}</label><input className="text-input" id="family-name" value={familyName} placeholder={t.auth.theirNamePlaceholder} onChange={(event) => setFamilyName(event.target.value)} />{familyMembers.length > 0 && <p className="family-added">{familyMembers.map((member) => `${member.name} · ${member.relation}`).join(", ")}</p>}<button type="button" className="text-button" onClick={() => { if (familyName.trim()) { setFamilyMembers((members) => [...members, { name: familyName.trim(), relation }]); setFamilyName(""); setRelation(null); } }}>{t.auth.addAnother}</button></>}
           <label className="consent-row"><input type="checkbox" checked={consent} onChange={(event) => setConsent(event.target.checked)} /><span>{t.auth.consent}</span></label>{error && <ErrorMessage message={error} />}<button className="auth-primary" disabled={loading || !name.trim() || !consent} type="submit">{loading ? <LoaderCircle className="button-spinner" size={20} /> : success ? <Check size={20} /> : t.auth.createAccount}</button>
         </motion.form>}
       </AnimatePresence>

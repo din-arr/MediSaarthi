@@ -56,3 +56,7 @@ The seed creates six Kolkata/Howrah stores, sample products and stock, the demo 
 `OTP_PROVIDER=mock` is the default. It generates a random code, stores only its SHA-256 hash for five minutes, and returns the code in the UI demo banner. Requests are limited to three per phone per ten minutes and verification allows five attempts.
 
 For Firebase, set `OTP_PROVIDER=firebase` plus `FIREBASE_PROJECT_ID`, `FIREBASE_CLIENT_EMAIL`, and `FIREBASE_PRIVATE_KEY`. Configure Firebase Authentication > Phone, enable invisible reCAPTCHA in the browser Firebase client flow, and add test phone numbers under Authentication > Sign-in method > Phone numbers for testing. The server verifies the resulting Firebase ID token with `firebase-admin`.
+
+Prescription uploads require `PRESCRIPTION_KEY`, a base64-encoded 32-byte AES-256-GCM key. Generate one with `openssl rand -base64 32`; uploaded files are encrypted under `uploads/`, which is gitignored.
+
+Set `OPENAI_API_KEY` optionally to enable image prescription drafting; without it the app uses seeded-product mock matches.

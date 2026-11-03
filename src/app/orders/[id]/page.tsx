@@ -1,0 +1,7 @@
+"use client";
+import { useEffect, useState } from "react";
+import PageShell from "../../../components/customer/PageShell";
+import { useLanguage } from "../../../components/LanguageProvider";
+type Order = { id: string; number: string; status: string; store: string; items: Array<{ name: string; quantity: number; schedule: string }> };
+export default function OrderDetail({ params }: { params: Promise<{ id: string }> }) { const { t } = useLanguage(); const [order, setOrder] = useState<Order | null>(null); useEffect(() => { params.then(({ id }) => fetch("/api/orders").then((r) => r.json()).then((items: Order[]) => setOrder(items.find((item) => item.id === id) ?? null))); }, [params]); return <PageShell title={order?.number ?? t.dashboard.ordersTitle}>{order ? <div className="flow-card"><p className="muted-copy">{order.store}</p>{order.items.map((item) => <div className="draft-row" key={item.name}><strong>{item.name}</strong><span>× {item.quantity}</span></div>)}<div className="status-timeline detail-timeline">{[t.dashboard.awaitingPharmacist, t.dashboard.approved, t.dashboard.packed, t.dashboard.outForDelivery, t.dashboard.delivered].map((status, index) => <div className={index <= (order.status === "PACKED" ? 2 : 0) ? "complete" : ""} key={status}><span />{status}</div>)}</div></div> : <HomeSkeleton />}</PageShell>; }
+function HomeSkeleton() { return <div className="home-skeleton"><span /><span /></div>; }

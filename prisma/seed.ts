@@ -117,8 +117,8 @@ async function main() {
   const mother = await prisma.familyMember.create({ data: { name: "Mother", relation: "Mother", userId: customer.id } });
 
   const storeMap = new Map<string, string>();
-  for (const [code, name, area, pincode, lat, lng] of stores) {
-    const store = await prisma.store.create({ data: { code, name, area, pincode, lat, lng, openHours: "08:00-22:00", deliveryRadiusKm: 8 } });
+  for (const [index, [code, name, area, pincode, lat, lng]] of stores.entries()) {
+    const store = await prisma.store.create({ data: { code, name, area, pincode, lat, lng, phone: `+91 90000 ${String(index + 1).padStart(5, "0")}`, openHours: "08:00-22:00", deliveryRadiusKm: 8 } });
     storeMap.set(area, store.id);
   }
   const productMap = new Map<string, string>();

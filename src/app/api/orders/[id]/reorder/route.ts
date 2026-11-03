@@ -8,8 +8,11 @@ export async function POST(request: Request, context: { params: Promise<{ id: st
   if (!session) return expiredSessionResponse();
   if (session.role !== "CUSTOMER") return NextResponse.json({ error: "Unauthenticated" }, { status: 401 });
   const { id } = await context.params;
+  const body = await request.json().catch(() => ({})) as { addressId?: string };
   const source = await prisma.order.findFirst({ where: { id, customerId: session.userId }, include: { items: true } });
   if (!source) return NextResponse.json({ error: "Order not found." }, { status: 404 });
-  const order = await prisma.order.create({ data: { number: `RX-${Math.floor(50000 + Math.random() * 49999)}`, customerId: session.userId, familyMemberId: source.familyMemberId, storeId: source.storeId, status: "AWAITING_PHARMACIST", total: source.total, items: { create: source.items.map((item) => ({ productId: item.productId, quantity: item.quantity, unitPrice: item.unitPrice })) } } });
+  const address = body.addressId ? await prisma.address.findFirst({ where: { id: body.addressId, userId: session.userId } }) : null;
+  if (!address) return NextResponse.json({ error: "Choose a delivery address before placing the order." }, { status: 400 });
+  const order = await prisma.order.create({ data: { number: `RX-${Math.floor(50000 + Math.random() * 49999)}`, customerId: session.userId, familyMemberId: source.familyMemberId, addressId: address.id, deliveryLat: address.lat, deliveryLng: address.lng, storeId: source.storeId, status: "AWAITING_PHARMACIST", total: source.total, items: { create: source.items.map((item) => ({ productId: item.productId, quantity: item.quantity, unitPrice: item.unitPrice })) } } });
   return NextResponse.json({ id: order.id });
 }

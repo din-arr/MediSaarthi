@@ -60,3 +60,9 @@ For Firebase, set `OTP_PROVIDER=firebase` plus `FIREBASE_PROJECT_ID`, `FIREBASE_
 Prescription uploads require `PRESCRIPTION_KEY`, a base64-encoded 32-byte AES-256-GCM key. Generate one with `openssl rand -base64 32`; uploaded files are encrypted under `uploads/`, which is gitignored.
 
 Set `OPENAI_API_KEY` optionally to enable image prescription drafting; without it the app uses seeded-product mock matches.
+
+### Design decisions
+
+There is no chatbot: MediSaarthi must never give medical advice, and the product intentionally avoids clutter. AI is used only to draft prescription items for pharmacist review; a pharmacist makes the final decision.
+
+Support contact details are configured with `NEXT_PUBLIC_SUPPORT_EMAIL` and `NEXT_PUBLIC_SUPPORT_WHATSAPP`. Store phone numbers are seeded with each store and can be changed in the seed data.

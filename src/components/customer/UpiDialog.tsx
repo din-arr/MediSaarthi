@@ -2,6 +2,8 @@
 
 import { CheckCircle2, LoaderCircle, QrCode, Smartphone, X } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
+import { useLanguage } from "../LanguageProvider";
+import { fill } from "../../i18n/more";
 
 type Props = { open: boolean; amount: number; orderNumber: string; onClose: () => void; onPay: (body: { upiId?: string; outcome: "success" | "failure" }) => Promise<string | null> };
 
@@ -12,6 +14,8 @@ const merchant = "medisaarthi@testbank";
  * but nothing is charged: the "bank" answer is simulated.
  */
 export default function UpiDialog({ open, amount, orderNumber, onClose, onPay }: Props) {
+  const { t } = useLanguage();
+  const m = t.more;
   const [tab, setTab] = useState<"qr" | "id">("qr");
   const [upiId, setUpiId] = useState("");
   const [stage, setStage] = useState<"choose" | "waiting" | "done">("choose");
@@ -29,7 +33,7 @@ export default function UpiDialog({ open, amount, orderNumber, onClose, onPay }:
   if (!open) return null;
 
   const pay = async (outcome: "success" | "failure") => {
-    if (tab === "id" && !/^[a-zA-Z0-9._-]{2,64}@[a-zA-Z]{2,32}$/.test(upiId.trim())) { setError("Enter a UPI ID like name@okhdfcbank."); return; }
+    if (tab === "id" && !/^[a-zA-Z0-9._-]{2,64}@[a-zA-Z]{2,32}$/.test(upiId.trim())) { setError(m.badUpi); return; }
     setError(""); setStage("waiting");
     await new Promise((resolve) => setTimeout(resolve, 1800)); // the "bank" thinking
     const problem = await onPay({ upiId: tab === "id" ? upiId.trim() : undefined, outcome });
@@ -42,32 +46,32 @@ export default function UpiDialog({ open, amount, orderNumber, onClose, onPay }:
     <div className="address-dialog-backdrop" role="presentation" onMouseDown={(event) => { if (event.currentTarget === event.target && stage !== "waiting") onClose(); }}>
       <section className="address-dialog upi-dialog" role="dialog" aria-modal="true" aria-labelledby="upi-title">
         <div className="dialog-heading">
-          <div><p className="eyebrow">Test mode · no real money</p><h2 id="upi-title">Pay ₹{amount} by UPI</h2><p className="muted-small">{orderNumber} · to {merchant}</p></div>
+          <div><p className="eyebrow">{m.upiTest}</p><h2 id="upi-title">{fill(m.upiTitle, { amount })}</h2><p className="muted-small">{orderNumber} · to {merchant}</p></div>
           {stage !== "waiting" && <button className="icon-button" type="button" aria-label="Close" onClick={onClose}><X size={20} /></button>}
         </div>
 
-        {stage === "waiting" && <div className="upi-state"><LoaderCircle className="button-spinner big" /><strong>Waiting for your UPI app…</strong><p className="muted-small">Approve the request in the app. Don&apos;t close this window.</p></div>}
-        {stage === "done" && <div className="upi-state ok"><CheckCircle2 size={48} /><strong>Payment successful</strong><p className="muted-small">Your store will start packing now.</p></div>}
+        {stage === "waiting" && <div className="upi-state"><LoaderCircle className="button-spinner big" /><strong>{m.waitingApp}</strong><p className="muted-small">{m.dontClose}</p></div>}
+        {stage === "done" && <div className="upi-state ok"><CheckCircle2 size={48} /><strong>{m.paySuccess}</strong><p className="muted-small">{m.packingNow}</p></div>}
 
         {stage === "choose" && <>
           <div className="seg upi-tabs">
-            <button type="button" className={tab === "qr" ? "on" : ""} onClick={() => setTab("qr")}><QrCode size={16} /> Scan QR</button>
-            <button type="button" className={tab === "id" ? "on" : ""} onClick={() => setTab("id")}><Smartphone size={16} /> UPI ID</button>
+            <button type="button" className={tab === "qr" ? "on" : ""} onClick={() => setTab("qr")}><QrCode size={16} /> {m.scanQr}</button>
+            <button type="button" className={tab === "id" ? "on" : ""} onClick={() => setTab("id")}><Smartphone size={16} /> {m.upiId}</button>
           </div>
 
           {tab === "qr" ? (
             <div className="upi-qr-wrap">
               <FakeQr seed={orderNumber + amount} />
-              <p className="muted-small">Scan with any UPI app. This is a test QR, so scanning it won&apos;t charge you.</p>
+              <p className="muted-small">{m.qrHint}</p>
               <div className="upi-apps">{["GPay", "PhonePe", "Paytm", "BHIM"].map((app) => <a key={app} className="secondary-button" href={link} onClick={(event) => { event.preventDefault(); void pay("success"); }}>{app}</a>)}</div>
             </div>
           ) : (
-            <label className="field-label">Your UPI ID<input className="text-input" placeholder="name@okhdfcbank" value={upiId} autoFocus onChange={(event) => setUpiId(event.target.value)} /><small className="muted-small">We&apos;ll send a payment request to this ID.</small></label>
+            <label className="field-label">{m.yourUpiId}<input className="text-input" placeholder="name@okhdfcbank" value={upiId} autoFocus onChange={(event) => setUpiId(event.target.value)} /><small className="muted-small">{m.upiHint}</small></label>
           )}
 
           {error && <p className="form-error">{error}</p>}
-          <button className="auth-primary" type="button" onClick={() => pay("success")}>{tab === "qr" ? "I've paid" : `Send request for ₹${amount}`}</button>
-          <button className="text-button upi-fail" type="button" onClick={() => pay("failure")}>Test a failed payment</button>
+          <button className="auth-primary" type="button" onClick={() => pay("success")}>{tab === "qr" ? m.iPaid : fill(m.sendRequest, { amount })}</button>
+          <button className="text-button upi-fail" type="button" onClick={() => pay("failure")}>{m.testFail}</button>
         </>}
       </section>
     </div>

@@ -1,8 +1,21 @@
 # MediSaarthi
 
+![CI](https://github.com/din-arr/MediSaarthi/actions/workflows/ci.yml/badge.svg)
+
 Medicine reordering for a Kolkata pharmacy chain (46 stores across Kolkata and Howrah). Customers reorder monthly medicines in a minute, a registered pharmacist checks every prescription, the nearest store with stock packs it, and customers get reminded before they run out.
 
 > Independent educational demo. Payments, SMS/WhatsApp and outside systems are mocked. Don't upload real prescriptions.
+
+## Why it matters
+
+The client loses about **₹1.33 crore a year**: 1,800 regular customers a month skip or buy elsewhere because nobody reminded them or their store was out of stock (₹85.5 lakh in margin), and staff spend 60 hours a day on WhatsApp orders (₹47.5 lakh).
+
+| Client target | How MediSaarthi gets there |
+|---|---|
+| 30% of regular customers ordering online in 6 months | Reorder in a minute from the home screen; family profiles for people ordering for parents |
+| Monthly drop-off from 20% to 10% | Refill reminders worked out from quantity and dosage, plus one-tap reorder; routing to the nearest store **with stock** |
+| Median verification under 10 minutes | Oldest-first queue with waiting time, prescription beside the items, AI draft, keyboard shortcuts; median tracked on the dashboard |
+| No Schedule H/H1 item dispatched without approval | Rules enforced on the server at every status change, tested, and checked live on the dashboard |
 
 ## What's in it
 
@@ -10,6 +23,7 @@ Medicine reordering for a Kolkata pharmacy chain (46 stores across Kolkata and H
 |---|---|---|
 | Customer | Home | Big reorder button, family switcher, "running low" reminders, latest order |
 | Customer | Upload | Prescription upload, AI draft of the items, delivery address, nearest store |
+| Customer | Generic offer | Pharmacist suggests a cheaper generic; the customer accepts or keeps the brand |
 | Customer | Search + cart | OTC medicines (paracetamol, ORS…) go straight to cart, no prescription or pharmacist wait |
 | Customer | Order | Status timeline, pharmacist decisions, re-upload, UPI / cash on delivery |
 | Pharmacist | Queue | Oldest first, waiting time, schedule, AI confidence |
@@ -46,7 +60,8 @@ Seed data matches the client's sample orders RX-50211, RX-50214 and RX-50219.
 ### Useful scripts
 
 ```bash
-npm run test:rules      # Schedule H/H1/X rules
+npm test                # Schedule H rules, routing, location
+npm run test:rules      # Schedule H/H1/X rules only
 npm run test:routing    # store routing
 npm run stock:import -- data/stock-2026-11-03.csv   # daily stock CSV
 npm run reminders       # send refill reminders (normally a daily job)
@@ -66,6 +81,8 @@ Next.js app ── pages in src/app/**/page.tsx
 ```
 
 - **Routing** (`src/lib/routing.ts`): nearest open store within its delivery radius that has every item in today's stock. Falls back to the store with the most items and says what's missing. Stock is reserved when the order is placed and released if it's rejected.
+- **Generics**: brand products link to their generic. The pharmacist can offer it; the order can't be approved until the customer accepts or declines (consent is logged).
+- **Reorder**: reuses the earlier prescription while it's still valid, but goes through routing and a fresh pharmacist check like any new order.
 - **Refill reminders**: when a pharmacist approves, the run-out date is worked out as quantity × pack size ÷ tablets per day. The reminder job texts people 5 days before.
 
 ## The hard part: Schedule H blocking
@@ -98,6 +115,5 @@ AI only drafts. It reads the prescription and suggests products and quantities w
 
 ## Not done yet
 
-- Cheaper generic suggestions with customer consent
 - Real SMS/WhatsApp, payments and OTP providers (all mocked)
 - Postgres + cloud file storage for deployment

@@ -1,8 +1,10 @@
+import { moreBn } from "./more";
 import type { Dictionary } from "./types";
 import { en } from "./en";
 
 export const bn: Dictionary = {
   ...en,
+  more: moreBn,
   languageName: "বাংলা",
   landing: {
     ...en.landing,

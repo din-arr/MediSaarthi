@@ -1,3 +1,4 @@
+import type { MoreStrings } from "./more";
 export type LanguageCode = "en" | "hi" | "bn";
 
 export type Dictionary = {
@@ -196,6 +197,7 @@ export type Dictionary = {
     refillsThisMonth: string;
   };
   languageName: string;
+  more: MoreStrings;
   demoBanner: string;
   demoBannerDetail: string;
   nav: {

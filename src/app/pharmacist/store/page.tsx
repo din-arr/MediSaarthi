@@ -21,8 +21,8 @@ export default function StorePage() {
   const [me, setMe] = useState<{ name: string; role?: Role; user?: { registrationNumber?: string | null } } | null>(null);
 
   const load = useCallback(async () => {
-    const response = await fetch(`/api/pharmacist/store${store ? `?store=${store}` : ""}`);
-    if (response.ok) setData(await response.json());
+    const response = await fetch(`/api/pharmacist/store${store ? `?store=${store}` : ""}`).catch(() => null);
+    if (response?.ok) setData(await response.json());
   }, [store]);
 
   useEffect(() => {

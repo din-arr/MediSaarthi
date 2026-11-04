@@ -33,8 +33,8 @@ export default function VerifyOrderPage() {
   const [error, setError] = useState("");
 
   const load = useCallback(async () => {
-    const response = await fetch(`/api/pharmacist/orders/${id}`);
-    if (!response.ok) { setError("Couldn't load this order."); return; }
+    const response = await fetch(`/api/pharmacist/orders/${id}`).catch(() => null);
+    if (!response?.ok) { setError("Couldn't load this order."); return; }
     const value = await response.json() as Order;
     setOrder(value);
     setDoctor((current) => current.name || current.regNo ? current : { name: value.prescription?.doctorName ?? "", regNo: value.prescription?.doctorRegNo ?? "", issuedOn: value.prescription?.issuedOn?.slice(0, 10) ?? "", patientAddress: value.address });

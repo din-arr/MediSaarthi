@@ -20,8 +20,8 @@ export default function PharmacistQueuePage() {
   const [error, setError] = useState("");
 
   const load = useCallback(async () => {
-    const response = await fetch("/api/pharmacist/queue");
-    if (!response.ok) { setError("Couldn't load the queue. Try logging in again."); return; }
+    const response = await fetch("/api/pharmacist/queue").catch(() => null);
+    if (!response?.ok) { setError("Couldn't load the queue. Try logging in again."); return; }
     setError("");
     setData(await response.json());
   }, []);

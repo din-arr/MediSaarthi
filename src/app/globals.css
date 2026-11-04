@@ -746,3 +746,12 @@ a.side-card.help-link { flex-direction: row; align-items: center; color: var(--b
 .empty-state { display: flex; flex-direction: column; align-items: center; gap: .6rem; padding: 3rem 1.5rem; text-align: center; color: var(--muted); }
 .empty-state strong { color: var(--text); font-size: 1.15rem; }
 @media (max-width: 600px) { .order-item-row { flex-wrap: wrap; } .cart-controls { width: 100%; justify-content: space-between; } }
+
+/* generic offers */
+.generic-offer { display: block; margin-top: .5rem; border: 1px dashed var(--brand); border-radius: .6rem; background: color-mix(in srgb, var(--brand) 6%, transparent); padding: .45rem .7rem; color: var(--brand); font-size: .85rem; font-weight: 600; text-align: left; }
+.generic-offer b { color: #16a34a; }
+.generic-card { margin-top: .75rem; border: 1px solid color-mix(in srgb, var(--brand) 40%, transparent); border-radius: .9rem; background: color-mix(in srgb, var(--brand) 7%, transparent); padding: .9rem 1rem; }
+.generic-card p { margin: 0 0 .75rem; font-size: .95rem; }
+.generic-actions { display: flex; flex-wrap: wrap; gap: .5rem; }
+.generic-actions .auth-primary { width: auto; min-height: 2.6rem; padding: 0 1rem; }
+.order-item-copy { flex: 1; }

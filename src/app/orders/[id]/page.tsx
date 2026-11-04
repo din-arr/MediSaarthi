@@ -7,7 +7,7 @@ import OrderTimeline, { OrderStatusPill } from "../../../components/customer/Ord
 import { useLanguage } from "../../../components/LanguageProvider";
 import UpiDialog from "../../../components/customer/UpiDialog";
 
-type Item = { name: string; quantity: number; originalQty: number | null; approvalStatus: string; rejectReason: string | null; schedule: string };
+type Item = { id: string; consentStatus: string; price: number; suggestion: { name: string; price: number } | null; name: string; quantity: number; originalQty: number | null; approvalStatus: string; rejectReason: string | null; schedule: string };
 type Order = { id: string; number: string; status: string; store: string; distanceKm: number | null; routingReason: string | null; missingItems: string[] | null; createdAt: string; familyMember: string; decisionReason: string | null; total: number; paymentMethod: string | null; paymentStatus: string; paymentRef: string | null; invoiceNumber: string | null; riderName: string | null; items: Item[] };
 
 export default function OrderDetail({ params }: { params: Promise<{ id: string }> }) {
@@ -48,6 +48,13 @@ export default function OrderDetail({ params }: { params: Promise<{ id: string }
     return null;
   };
 
+  const consent = async (itemId: string, accept: boolean) => {
+    if (!order) return;
+    const response = await fetch(`/api/orders/${order.id}/items/${itemId}/consent`, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ accept }) });
+    if (!response.ok) { setError((await response.json()).error); return; }
+    await load();
+  };
+
   const isRx = (schedule: string) => schedule === "H" || schedule === "H1";
   const waiting = order?.status === "AWAITING_PHARMACIST";
 
@@ -73,7 +80,12 @@ export default function OrderDetail({ params }: { params: Promise<{ id: string }
             {(item.approvalStatus === "APPROVED" || item.approvalStatus === "EDITED") && <small className="ok-note">Checked by pharmacist</small>}
             {item.approvalStatus === "EDITED" && item.originalQty && <small>Quantity changed from {item.originalQty} to {item.quantity}</small>}
             {item.approvalStatus === "REJECTED" && <small className="ph-reject-note">Not included: {item.rejectReason}</small>}
-          </div></div><span className="qty-chip">× {item.quantity}</span></div>)}</div>
+            {item.consentStatus === "ACCEPTED" && <small className="ok-note">Generic, as you agreed</small>}
+          </div>
+          {item.suggestion && <div className="generic-card">
+            <p><strong>Cheaper generic suggested by the pharmacist</strong><br />{item.suggestion.name}: same medicine and strength, ₹{item.suggestion.price} instead of ₹{item.price}. You save ₹{(item.price - item.suggestion.price) * item.quantity}.</p>
+            <div className="generic-actions"><button className="auth-primary" type="button" onClick={() => consent(item.id, true)}>Switch to generic</button><button className="secondary-button" type="button" onClick={() => consent(item.id, false)}>Keep {item.name.split(" ")[0]}</button></div>
+          </div>}</div><span className="qty-chip">× {item.quantity}</span></div>)}</div>
         {order.missingItems && order.missingItems.length > 0 && <div className="missing-items"><strong>{t.dashboard.missingItems}</strong><p>{order.missingItems.join(", ")}</p></div>}
       </section>
 

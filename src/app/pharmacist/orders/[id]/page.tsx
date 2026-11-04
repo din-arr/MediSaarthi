@@ -6,7 +6,7 @@ import { useParams, useRouter } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
 import PharmacistHeader, { ScheduleBadge } from "../../../../components/pharmacist/PharmacistHeader";
 
-type Item = { id: string; productId: string; name: string; strength: string; packSize: string; schedule: string; quantity: number; originalQty: number | null; approvalStatus: "PENDING" | "APPROVED" | "EDITED" | "REJECTED"; rejectReason: string | null; confidence: number | null; otherStrengths: Array<{ id: string; strength: string; packSize: string }> };
+type Item = { id: string; productId: string; name: string; strength: string; packSize: string; schedule: string; quantity: number; originalQty: number | null; approvalStatus: "PENDING" | "APPROVED" | "EDITED" | "REJECTED"; rejectReason: string | null; confidence: number | null; otherStrengths: Array<{ id: string; strength: string; packSize: string }>; price: number; consentStatus: string; generic: { name: string; strength: string; price: number } | null };
 type Order = { id: string; number: string; status: string; createdAt: string; decisionReason: string | null; customer: { name: string; phone: string }; patient: { name: string; relation: string }; address: string; store: string | null; prescription: { id: string; doctorName: string; doctorRegNo: string; issuedOn: string | null; uploadedAt: string } | null; items: Item[]; audit: Array<{ action: string; by: string; at: string }> };
 
 const rejectReasons = ["Not on the prescription", "Unreadable", "Prescription expired", "Wrong strength", "Quantity too high", "Other"];
@@ -140,6 +140,14 @@ export default function VerifyOrderPage() {
                         <small>{item.quantity} × {item.packSize}{item.originalQty ? ` (customer asked for ${item.originalQty})` : ""}{item.confidence != null ? ` · AI ${Math.round(item.confidence * 100)}%` : ""}</small>
                         {item.confidence != null && item.confidence < 0.8 && <small className="ph-low">Low confidence. Read the image carefully.</small>}
                         {item.rejectReason && <small className="ph-reject-note">Rejected: {item.rejectReason}</small>}
+                        {item.consentStatus === "PENDING" && <small className="ph-low">Generic offered. Waiting for the customer to accept.</small>}
+                        {item.consentStatus === "ACCEPTED" && <small className="ok-note">Customer accepted the generic</small>}
+                        {item.consentStatus === "DECLINED" && <small className="muted-small">Customer kept the original brand</small>}
+                        {open && item.generic && item.consentStatus === "NONE" && item.approvalStatus !== "REJECTED" && (
+                          <button className="generic-offer" type="button" onClick={(event) => { event.stopPropagation(); void decide(item, { offerGeneric: true }); }}>
+                            Offer generic: {item.generic.name} {item.generic.strength} · ₹{item.generic.price} <b>(saves ₹{(item.price - item.generic.price) * item.quantity})</b>
+                          </button>
+                        )}
                       </div>
                       {open && (
                         <div className="ph-item-actions">

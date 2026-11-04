@@ -70,6 +70,9 @@ export const moreEn = {
   paySuccess: "Payment successful",
   packingNow: "Your store will start packing now.",
   badUpi: "Enter a UPI ID like name@okhdfcbank.",
+  remindMe: "Monthly reminder",
+  remindOn: "We'll text you before it runs out",
+  remindOff: "Reminders off",
 };
 
 export type MoreStrings = Record<keyof typeof moreEn, string>;
@@ -145,6 +148,9 @@ export const moreBn: MoreStrings = {
   paySuccess: "পেমেন্ট সফল",
   packingNow: "আপনার দোকান এখন প্যাক করা শুরু করবে।",
   badUpi: "name@okhdfcbank-এর মতো UPI আইডি দিন।",
+  remindMe: "মাসিক রিমাইন্ডার",
+  remindOn: "শেষ হওয়ার আগে মেসেজ পাঠাব",
+  remindOff: "রিমাইন্ডার বন্ধ",
 };
 
 export const moreHi: MoreStrings = {
@@ -218,6 +224,9 @@ export const moreHi: MoreStrings = {
   paySuccess: "भुगतान सफल",
   packingNow: "आपकी दुकान अब पैक करना शुरू करेगी।",
   badUpi: "name@okhdfcbank जैसी UPI आईडी डालें।",
+  remindMe: "मासिक रिमाइंडर",
+  remindOn: "ख़त्म होने से पहले मैसेज भेजेंगे",
+  remindOff: "रिमाइंडर बंद",
 };
 
 /** Fills {placeholders} in a string. */

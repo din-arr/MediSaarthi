@@ -117,3 +117,11 @@ AI only drafts. It reads the prescription and suggests products and quantities w
 
 - Real SMS/WhatsApp, payments and OTP providers (all mocked)
 - Postgres + cloud file storage for deployment
+
+## Deploy (Vercel + Neon)
+
+1. Create a free Postgres database on [Neon](https://neon.tech) and copy its connection string.
+2. Import this repo on Vercel and add env vars: `DATABASE_URL` (Neon string), `SESSION_SECRET`, `PRESCRIPTION_KEY` (`openssl rand -base64 32`), optionally `OPENAI_API_KEY`.
+3. Deploy. The build switches Prisma to Postgres, pushes the schema and seeds demo data on first run.
+
+Prescriptions are stored encrypted inside the database, so nothing depends on Vercel's disk. Uploads are capped at 4 MB (Vercel's request limit).

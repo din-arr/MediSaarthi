@@ -10,7 +10,7 @@ export async function GET(_request: Request, { params }: { params: Promise<{ id:
     where: { id },
     include: {
       customer: true, familyMember: true, store: true, address: true, prescription: true, h1Entries: true,
-      items: { include: { product: true }, orderBy: { id: "asc" } },
+      items: { include: { product: { include: { genericOf: true } }, suggestedProduct: true }, orderBy: { id: "asc" } },
       auditLogs: { include: { user: true }, orderBy: { createdAt: "desc" }, take: 20 },
     },
   });
@@ -29,7 +29,8 @@ export async function GET(_request: Request, { params }: { params: Promise<{ id:
       return {
         id: item.id, productId: item.productId, name: item.product.name, strength: item.product.strength, packSize: item.product.packSize,
         schedule: item.product.schedule, quantity: item.quantity, originalQty: item.originalQty, approvalStatus: item.approvalStatus,
-        rejectReason: item.rejectReason, confidence: ai?.confidence ?? null,
+        rejectReason: item.rejectReason, confidence: ai?.confidence ?? null, price: Number(item.product.price), consentStatus: item.consentStatus,
+        generic: item.product.genericOf ? { name: item.product.genericOf.name, strength: item.product.genericOf.strength, price: Number(item.product.genericOf.price) } : null,
         otherStrengths: generics.filter((product) => product.name === item.product.name && product.id !== item.productId).map((product) => ({ id: product.id, strength: product.strength, packSize: product.packSize })),
       };
     }),

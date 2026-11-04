@@ -27,7 +27,7 @@ export default function SearchPage() {
   };
 
   return (
-    <PageShell title={t.dashboard.searchTitle} description="Medicines without a prescription go straight to your cart. Prescription medicines need a photo of your prescription." action={<Link className="secondary-button" href="/cart">View cart</Link>}>
+    <PageShell title={t.dashboard.searchTitle} description={t.more.searchDesc} action={<Link className="secondary-button" href="/cart">{t.more.viewCart}</Link>}>
       <div className="search-box"><SearchIcon size={20} /><input value={query} autoFocus onChange={(event) => setQuery(event.target.value)} placeholder={t.dashboard.searchPlaceholder} /></div>
       <div className="product-results">
         {products.map((product) => {
@@ -36,11 +36,11 @@ export default function SearchPage() {
             <article className="product-result" key={product.id}>
               <div>
                 <strong>{product.name} {product.strength}</strong>
-                <p>{product.packSize} · ₹{Number(product.price)} <span className={`schedule-badge schedule-${product.schedule}`}>{otc ? "No prescription needed" : product.schedule === "X" ? "Not sold online" : `Schedule ${product.schedule}`}</span></p>
+                <p>{product.packSize} · ₹{Number(product.price)} <span className={`schedule-badge schedule-${product.schedule}`}>{otc ? t.more.noRxNeeded : product.schedule === "X" ? t.more.notOnline : `Schedule ${product.schedule}`}</span></p>
               </div>
-              {product.schedule === "X" ? <span className="muted-small">Ask at your store</span>
-                : otc ? <button className={`secondary-button add-btn ${added === product.id ? "done" : ""}`} type="button" onClick={() => add(product)}>{added === product.id ? <><Check size={16} /> Added</> : <><Plus size={16} /> Add to cart</>}</button>
-                : <Link className="text-button" href="/upload"><FileUp size={16} /> Needs prescription</Link>}
+              {product.schedule === "X" ? <span className="muted-small">{t.more.askStore}</span>
+                : otc ? <button className={`secondary-button add-btn ${added === product.id ? "done" : ""}`} type="button" onClick={() => add(product)}>{added === product.id ? <><Check size={16} /> {t.more.added}</> : <><Plus size={16} /> {t.more.addToCart}</>}</button>
+                : <Link className="text-button" href="/upload"><FileUp size={16} /> {t.more.needsRx}</Link>}
             </article>
           );
         })}

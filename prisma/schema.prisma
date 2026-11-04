@@ -249,6 +249,7 @@ model Prescription {
   uploadedById      String
   orderId           String?                 @unique
   encryptedFilePath String
+  fileData          Bytes?
   aiDraft           Json?
   status            PrescriptionStatus      @default(PENDING)
   doctorName        String?

@@ -10,7 +10,7 @@ export async function GET(_request: Request, { params }: { params: Promise<{ id:
   const prescription = await prisma.prescription.findUnique({ where: { id } });
   if (!prescription) return new Response("Not found", { status: 404 });
   try {
-    const { data, contentType } = await decryptPrescription(prescription.encryptedFilePath);
+    const { data, contentType } = await decryptPrescription(prescription);
     await prisma.prescriptionAccessLog.create({ data: { userId: auth.session.userId, prescriptionId: id, action: "VIEW" } });
     return new Response(new Uint8Array(data), { headers: { "content-type": contentType, "cache-control": "private, no-store" } });
   } catch (error) {

@@ -18,11 +18,11 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
   const file = (await request.formData()).get("file");
   if (!(file instanceof File)) return NextResponse.json({ error: "Choose a file first." }, { status: 400 });
   if (!allowedTypes.includes(file.type)) return NextResponse.json({ error: "Use a JPG, PNG or PDF." }, { status: 400 });
-  if (file.size > 5 * 1024 * 1024) return NextResponse.json({ error: "The file is bigger than 5 MB." }, { status: 400 });
-  const encryptedFilePath = await encryptPrescription(file);
+  if (file.size > 4 * 1024 * 1024) return NextResponse.json({ error: "The file is bigger than 4 MB." }, { status: 400 });
+  const stored = await encryptPrescription(file);
   await prisma.$transaction(async (tx) => {
-    if (order.prescription) await tx.prescription.update({ where: { id: order.prescription.id }, data: { encryptedFilePath, status: "PENDING", uploadedAt: new Date() } });
-    else await tx.prescription.create({ data: { uploadedById: session.userId, orderId: id, encryptedFilePath } });
+    if (order.prescription) await tx.prescription.update({ where: { id: order.prescription.id }, data: { ...stored, status: "PENDING", uploadedAt: new Date() } });
+    else await tx.prescription.create({ data: { uploadedById: session.userId, orderId: id, ...stored } });
     await tx.orderItem.updateMany({ where: { orderId: id }, data: { approvalStatus: "PENDING", rejectReason: null, decidedById: null, decidedAt: null } });
     await tx.order.update({ where: { id }, data: { status: "AWAITING_PHARMACIST", decisionReason: null } });
     await tx.auditLog.create({ data: { orderId: id, userId: session.userId, action: "REUPLOADED" } });

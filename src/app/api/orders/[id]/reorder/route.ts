@@ -49,7 +49,7 @@ export async function POST(request: Request, context: { params: Promise<{ id: st
         items: { create: products.map((item) => ({ productId: item.productId, quantity: item.quantity, unitPrice: item.product!.price, approvalStatus: otcOnly ? "APPROVED" : "PENDING" })) },
       } });
       // Same prescription file, new record, so the pharmacist checks it again for this order.
-      if (source.prescription && !otcOnly) await tx.prescription.create({ data: { uploadedById: session.userId, orderId: created.id, encryptedFilePath: source.prescription.encryptedFilePath, aiDraft: source.prescription.aiDraft ?? undefined, doctorName: source.prescription.doctorName, doctorRegNo: source.prescription.doctorRegNo, issuedOn: source.prescription.issuedOn } });
+      if (source.prescription && !otcOnly) await tx.prescription.create({ data: { uploadedById: session.userId, orderId: created.id, encryptedFilePath: source.prescription.encryptedFilePath, fileData: source.prescription.fileData, aiDraft: source.prescription.aiDraft ?? undefined, doctorName: source.prescription.doctorName, doctorRegNo: source.prescription.doctorRegNo, issuedOn: source.prescription.issuedOn } });
       await notify(tx, session.userId, otcOnly ? `${created.number} is confirmed. You can pay now.` : `${created.number} placed. A pharmacist will check your prescription shortly.`, created.id);
       return created;
     });

@@ -91,6 +91,11 @@ model Product {
   form            String
   schedule        Schedule
   price           Decimal
+  isBrand         Boolean           @default(false)
+  genericOfId     String?
+  genericOf       Product?          @relation("Generics", fields: [genericOfId], references: [id])
+  brands          Product[]         @relation("Generics")
+  suggestedIn     OrderItem[]       @relation("SuggestedGeneric")
   createdAt       DateTime          @default(now())
   updatedAt       DateTime          @updatedAt
   stock           Stock[]
@@ -225,6 +230,9 @@ model OrderItem {
   approvalStatus ApprovalStatus @default(PENDING)
   rejectReason   String?
   originalQty    Int?
+  suggestedProductId String?
+  consentStatus  String         @default("NONE")
+  suggestedProduct Product?     @relation("SuggestedGeneric", fields: [suggestedProductId], references: [id])
   decidedById    String?
   decidedAt      DateTime?
   decidedBy      User?          @relation("ItemDecisions", fields: [decidedById], references: [id])

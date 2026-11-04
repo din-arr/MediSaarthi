@@ -136,6 +136,14 @@ async function main() {
     const product = await prisma.product.create({ data: { code, name, strength, packSize, form, schedule, price } });
     productMap.set(name, product.id);
   }
+  // Branded versions (made-up brand names) so pharmacists can offer the cheaper generic.
+  const brands = [["Glucora", "Metformin", 78], ["Telmicare", "Telmisartan", 210], ["Thyrovance", "Levothyroxine", 265]] as const;
+  for (const [brand, generic, price] of brands) {
+    const base = await prisma.product.findFirst({ where: { name: generic } });
+    if (!base) continue;
+    const product = await prisma.product.create({ data: { code: brand.toUpperCase(), name: brand, strength: base.strength, packSize: base.packSize, form: base.form, schedule: base.schedule, price, isBrand: true, genericOfId: base.id } });
+    productMap.set(brand, product.id);
+  }
   const stockDate = new Date();
   stockDate.setUTCHours(0, 0, 0, 0);
   for (const storeId of storeMap.values()) {
@@ -143,6 +151,7 @@ async function main() {
       const gap = (storeId.charCodeAt(0) + name.length) % 17 === 0;
       await prisma.stock.create({ data: { storeId, productId: productMap.get(name)!, qty: gap ? 0 : 12 + (name.length % 20), date: stockDate } });
     }
+    for (const [brand] of brands) if (productMap.get(brand)) await prisma.stock.create({ data: { storeId, productId: productMap.get(brand)!, qty: 10, date: stockDate } });
   }
   const pincodeRows = new Map<string, { code: string; area: string; lat: number; lng: number }>();
   for (let code = 700001; code <= 700160; code += 1) {

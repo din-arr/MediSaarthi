@@ -8,7 +8,7 @@ import { notify } from "./notify";
 export async function sendDueReminders(db: PrismaClient, withinDays = 5) {
   const cutoff = new Date(Date.now() + withinDays * 86_400_000);
   const recent = new Date(Date.now() - 2 * 86_400_000);
-  const refills = await db.refill.findMany({ where: { nextRunOutDate: { lte: cutoff } }, include: { product: true, familyMember: true } });
+  const refills = await db.refill.findMany({ where: { nextRunOutDate: { lte: cutoff }, autoRemind: true }, include: { product: true, familyMember: true } });
   let sent = 0;
   for (const refill of refills) {
     const name = `${refill.product.name} ${refill.product.strength}`;

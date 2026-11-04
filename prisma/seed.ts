@@ -153,6 +153,9 @@ async function main() {
     }
     for (const [brand] of brands) if (productMap.get(brand)) await prisma.stock.create({ data: { storeId, productId: productMap.get(brand)!, qty: 10, date: stockDate } });
   }
+  // Separate staff logins: one store team member (Salt Lake) and central operations.
+  await prisma.user.upsert({ where: { phone: "9000000005" }, update: { role: UserRole.STORE_STAFF, name: "Sourav Das", storeId: storeMap.get("Salt Lake") }, create: { id: "user_store", phone: "9000000005", role: UserRole.STORE_STAFF, name: "Sourav Das", storeId: storeMap.get("Salt Lake") } });
+  await prisma.user.upsert({ where: { phone: "9000000006" }, update: { role: UserRole.OPS, name: "Priya Banerjee" }, create: { id: "user_ops", phone: "9000000006", role: UserRole.OPS, name: "Priya Banerjee" } });
   const pincodeRows = new Map<string, { code: string; area: string; lat: number; lng: number }>();
   for (let code = 700001; code <= 700160; code += 1) {
     const fraction = (code - 700001) / 159;

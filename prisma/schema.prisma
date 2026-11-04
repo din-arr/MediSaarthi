@@ -11,6 +11,7 @@ enum UserRole {
   CUSTOMER
   PHARMACIST
   STORE_STAFF
+  OPS
 }
 
 enum Schedule {
@@ -53,6 +54,8 @@ model User {
   name                  String?
   preferredLanguage     String                  @default("en")
   registrationNumber    String?
+  storeId               String?
+  store                 Store?                  @relation("StoreStaff", fields: [storeId], references: [id])
   createdAt             DateTime                @default(now())
   updatedAt             DateTime                @updatedAt
   familyMembers         FamilyMember[]          @relation("FamilyMemberOwner")
@@ -119,6 +122,7 @@ model Store {
   deliveryRadiusKm Float    @default(8)
   stock            Stock[]
   orders           Order[]
+  staff            User[]   @relation("StoreStaff")
   createdAt        DateTime @default(now())
 }
 

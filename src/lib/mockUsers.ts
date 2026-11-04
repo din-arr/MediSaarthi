@@ -1,4 +1,4 @@
-export type AppRole = "CUSTOMER" | "PHARMACIST";
+export type AppRole = "CUSTOMER" | "PHARMACIST" | "STORE_STAFF" | "OPS";
 
 export type MockUser = {
   id: string;

@@ -46,14 +46,18 @@ npm run dev
 
 Open http://localhost:3000.
 
-### Demo logins (OTP is shown on screen in demo mode)
+### Demo logins
+
+On the login screen, tap a demo account button, or type a number below. The OTP is shown on screen (no real SMS).
 
 | Phone | Role | What you'll see |
 |---|---|---|
 | 9000000001 | Customer, Debasish Ghosh | Order for his mother, packed at Salt Lake |
 | 9000000003 | Customer, Rina Sen | Telmisartan order waiting for a pharmacist |
 | 9000000004 | Customer, Arif Mondal | Levothyroxine order needing a clearer photo |
-| 9000000002 | Pharmacist, Ananya Roy (WB-PH-21487) | Queue, store orders, dashboard |
+| 9000000002 | Pharmacist, Ananya Roy (WB-PH-21487) | Prescription queue and side-by-side verification |
+| 9000000005 | Store staff, Sourav Das (Salt Lake) | Pick, pack, invoice and rider handover |
+| 9000000006 | Ops, Priya Banerjee | Central dashboard for all 46 stores |
 
 Seed data matches the client's sample orders RX-50211, RX-50214 and RX-50219.
 

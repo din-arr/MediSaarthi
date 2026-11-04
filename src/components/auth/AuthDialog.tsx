@@ -115,6 +115,7 @@ export default function AuthDialog({ open, onClose, initialError = "" }: Props) 
           <DialogHeading id="auth-dialog-title" icon={<Phone size={22} />} title={t.auth.welcomeTitle} subtitle={t.auth.welcomeSubtitle} />
           <label className="sr-only" htmlFor="auth-phone">{t.auth.enterMobile}</label>
           <div className={`phone-input ${error ? "input-error" : ""}`}><span>+91</span><input ref={phoneRef} id="auth-phone" type="tel" inputMode="numeric" maxLength={10} placeholder={t.auth.phonePlaceholder} value={phone} onChange={(event) => { setPhone(event.target.value.replace(/\D/g, "")); setError(""); }} /></div>
+          <div className="demo-logins"><small>Demo accounts, tap to fill:</small><div>{[["9000000001", "Customer"], ["9000000002", "Pharmacist"], ["9000000005", "Store staff"], ["9000000006", "Ops"]].map(([number, label]) => <button type="button" key={number} className="relation-chip" onClick={() => { setPhone(number); setError(""); }}>{label}</button>)}</div></div>
           {error && <ErrorMessage message={error} />}
           <button className="auth-primary" disabled={phone.length !== 10 || loading} type="submit">{loading ? <LoaderCircle className="button-spinner" size={20} /> : t.auth.continue}</button>
         </motion.form>}

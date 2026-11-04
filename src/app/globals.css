@@ -762,3 +762,7 @@ a.side-card.help-link { flex-direction: row; align-items: center; color: var(--b
 .remind-switch input:checked { background: var(--brand); }
 .remind-switch input:checked::after { transform: translateX(.9rem); }
 .remind-switch input:focus-visible { outline: 3px solid var(--brand); outline-offset: 2px; }
+
+.demo-logins { margin-top: 12px; }
+.demo-logins small { display: block; color: var(--muted, #6b7280); margin-bottom: 6px; }
+.demo-logins > div { display: flex; flex-wrap: wrap; gap: 6px; }

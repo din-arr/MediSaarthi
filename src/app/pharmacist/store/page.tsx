@@ -38,10 +38,10 @@ export default function StorePage() {
       <div className="customer-content page-content">
         <div className="page-heading">
           <div><h1>Store orders</h1><p>Pick the approved items, pack with the store invoice number, then hand over to the rider.</p></div>
-          <select className="text-input store-select" value={store} onChange={(event) => setStore(event.target.value)}>
+          {me?.role === "STORE_STAFF" ? <span className="text-input store-select">{data?.stores[0]?.name ?? "Your store"}</span> : <select className="text-input store-select" value={store} onChange={(event) => setStore(event.target.value)}>
             <option value="">All 46 stores</option>
             {data?.stores.map((item) => <option key={item.id} value={item.id}>{item.name}</option>)}
-          </select>
+          </select>}
         </div>
         {!data ? <div className="home-skeleton"><span /><span /></div> : (
           <div className="store-board">

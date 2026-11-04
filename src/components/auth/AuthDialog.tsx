@@ -75,10 +75,10 @@ export default function AuthDialog({ open, onClose, initialError = "" }: Props) 
     setLoading(true); setError("");
     try {
       const response = await fetch("/api/auth/login", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ phone, otp: otp.join("") }) });
-      const result = await response.json() as { role?: "CUSTOMER" | "PHARMACIST"; needsProfile?: boolean };
+      const result = await response.json() as { role?: string; home?: string; needsProfile?: boolean };
       if (!response.ok) throw new Error();
       if (result.needsProfile) setStep(3);
-      else { setSuccess(true); window.setTimeout(() => { close(); router.push(result.role === "PHARMACIST" ? "/pharmacist/queue" : "/home"); }, 700); }
+      else { setSuccess(true); window.setTimeout(() => { close(); router.push(result.home ?? "/home"); }, 700); }
     } catch { setError(t.auth.loginError); } finally { setLoading(false); }
   };
   const updateOtp = (index: number, value: string) => {

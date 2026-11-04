@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { prisma } from "../../../../lib/prisma";
-import { requirePharmacist } from "../../../../lib/pharmacy/auth";
+import { requireRole } from "../../../../lib/pharmacy/auth";
 
 const median = (values: number[]) => {
   if (!values.length) return null;
@@ -11,7 +11,7 @@ const median = (values: number[]) => {
 
 /** One view across all stores: orders, verification time, rejections and the Schedule H safety check. */
 export async function GET(request: Request) {
-  const auth = await requirePharmacist();
+  const auth = await requireRole("OPS", "PHARMACIST");
   if ("error" in auth) return auth.error;
   const days = Math.min(90, Math.max(1, Number(new URL(request.url).searchParams.get("days") ?? 7)));
   const since = new Date(Date.now() - days * 86_400_000);

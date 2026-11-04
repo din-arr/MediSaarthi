@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { prisma } from "../../../../lib/prisma";
-import { createSession, SESSION_COOKIE } from "../../../../lib/session";
+import { createSession, SESSION_COOKIE, homeFor } from "../../../../lib/session";
 import { getOtpProvider } from "../../../../lib/otp";
 
 export async function POST(request: Request) {
@@ -15,12 +15,12 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: message }, { status: code === "TOO_MANY_ATTEMPTS" ? 429 : 401 });
   }
   const databaseUser = await prisma.user.findUnique({ where: { phone } });
-  const user = databaseUser && (databaseUser.role === "CUSTOMER" || databaseUser.role === "PHARMACIST")
+  const user = databaseUser
     ? { id: databaseUser.id, phone: databaseUser.phone, role: databaseUser.role, name: databaseUser.name ?? phone }
     : null;
   if (!user) return NextResponse.json({ needsProfile: true });
 
-  const response = NextResponse.json({ role: user.role });
+  const response = NextResponse.json({ role: user.role, home: homeFor[user.role] });
   response.cookies.set(SESSION_COOKIE, await createSession({ userId: user.id, role: user.role, name: user.name }), { httpOnly: true, sameSite: "lax", secure: process.env.NODE_ENV === "production", path: "/", maxAge: 60 * 60 * 24 * 7 });
   return response;
 }

@@ -15,7 +15,7 @@ type Body = { status?: Status; invoiceNumber?: string; riderName?: string };
 export async function PATCH(request: Request, { params }: { params: Promise<{ id: string }> }) {
   const session = await getSession((await cookies()).get(SESSION_COOKIE)?.value);
   if (!session) return expiredSessionResponse();
-  if (session.role !== "PHARMACIST") return NextResponse.json({ error: "Only store staff can do this." }, { status: 403 });
+  if (session.role !== "PHARMACIST" && session.role !== "STORE_STAFF") return NextResponse.json({ error: "Only store staff can do this." }, { status: 403 });
   const { id } = await params;
   const body = await request.json() as Body;
   if (!body.status || !storeMoves.includes(body.status)) return NextResponse.json({ error: "Use the pharmacist screen to approve or reject." }, { status: 400 });
@@ -23,6 +23,7 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
     const updated = await prisma.$transaction(async (tx) => {
       // Schedule H checks run again here, so nothing gets packed or dispatched without approval.
       const order = await assertTransition(tx, id, body.status!);
+      if (session.role === "STORE_STAFF" && order.storeId !== session.user.storeId) throw new RuleError("This order belongs to another store.", 403);
       const data: Record<string, unknown> = { status: body.status };
       if (body.status === "PACKED") {
         if (!order.paymentMethod) throw new RuleError("The customer hasn't chosen UPI or cash on delivery yet.", 409);

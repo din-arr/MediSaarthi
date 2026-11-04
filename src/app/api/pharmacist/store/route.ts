@@ -1,14 +1,16 @@
 import { NextResponse } from "next/server";
 import { prisma } from "../../../../lib/prisma";
-import { requirePharmacist } from "../../../../lib/pharmacy/auth";
+import { requireRole } from "../../../../lib/pharmacy/auth";
 
 /** Orders the store needs to pick, pack and hand over. */
 export async function GET(request: Request) {
-  const auth = await requirePharmacist();
+  const auth = await requireRole("STORE_STAFF", "PHARMACIST");
   if ("error" in auth) return auth.error;
-  const storeId = new URL(request.url).searchParams.get("store") || undefined;
+  // Store staff only ever see their own store.
+  const ownStore = auth.session.role === "STORE_STAFF" ? auth.session.user.storeId : null;
+  const storeId = ownStore ?? (new URL(request.url).searchParams.get("store") || undefined);
   const [stores, orders] = await Promise.all([
-    prisma.store.findMany({ select: { id: true, name: true }, orderBy: { name: "asc" } }),
+    prisma.store.findMany({ where: ownStore ? { id: ownStore } : undefined, select: { id: true, name: true }, orderBy: { name: "asc" } }),
     prisma.order.findMany({
       where: { status: { in: ["APPROVED", "PACKED", "OUT_FOR_DELIVERY"] }, storeId },
       include: { customer: true, familyMember: true, address: true, store: true, items: { include: { product: true } } },

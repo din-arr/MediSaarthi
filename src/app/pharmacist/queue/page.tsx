@@ -92,5 +92,5 @@ function Stat({ label, value, hint }: { label: string; value: string | number; h
 function formatWait(minutes: number) {
   if (minutes < 60) return `${minutes} min`;
   const hours = Math.floor(minutes / 60);
-  return hours < 24 ? `${hours} h ${minutes % 60} min` : `${Math.floor(hours / 24)} d`;
+  return hours < 24 ? (minutes % 60 ? `${hours} h ${minutes % 60} min` : `${hours} h`) : `${Math.floor(hours / 24)} d`;
 }

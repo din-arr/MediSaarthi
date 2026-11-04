@@ -40,3 +40,7 @@ test("packing an approved order works, packing an unapproved one doesn't", () =>
 test("OTC-only orders don't need a prescription check", () => {
   assert.equal(checkTransition(order([{ schedule: "OTC", approvalStatus: "APPROVED" }], { prescription: null, verifiedByRegNo: null }), "APPROVED"), null);
 });
+
+test("a generic waiting for customer consent blocks approval", () => {
+  assert.match(checkTransition(order([{ schedule: "H", approvalStatus: "APPROVED", awaitingConsent: true }]), "APPROVED")!, /accept or decline/);
+});

@@ -14,7 +14,7 @@ export type Status =
 export type RuleSettings = { prescriptionValidityDays: number; xAllowedOnline: boolean };
 export const defaultRules: RuleSettings = { prescriptionValidityDays: 180, xAllowedOnline: false };
 
-export type RuleItem = { schedule: ScheduleCode; approvalStatus: ItemDecision; name?: string; hasH1Entry?: boolean };
+export type RuleItem = { schedule: ScheduleCode; approvalStatus: ItemDecision; name?: string; hasH1Entry?: boolean; awaitingConsent?: boolean };
 export type RuleOrder = {
   status: Status;
   items: RuleItem[];
@@ -52,6 +52,8 @@ export function checkTransition(order: RuleOrder, to: Status, rules: RuleSetting
 
   const kept = order.items.filter((item) => item.approvalStatus !== "REJECTED");
   if (kept.length === 0) return "Every item was rejected, so this order can't go ahead.";
+  const waitingOnCustomer = order.items.find((item) => item.awaitingConsent);
+  if (waitingOnCustomer) return `Waiting for the customer to accept or decline the generic for ${waitingOnCustomer.name ?? "an item"}.`;
   const undecided = order.items.find((item) => item.approvalStatus === "PENDING");
   if (undecided) return `${undecided.name ?? "An item"} still needs a pharmacist's decision.`;
 

@@ -26,6 +26,7 @@ export async function assertTransition(db: Db, orderId: string, to: Status) {
       approvalStatus: item.approvalStatus,
       name: `${item.product.name} ${item.product.strength}`,
       hasH1Entry: order.h1Entries.some((entry) => entry.productId === item.productId),
+      awaitingConsent: item.consentStatus === "PENDING",
     })),
   }, to, await loadRules(db));
   if (problem) throw new RuleError(problem, 409);

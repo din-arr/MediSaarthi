@@ -1,5 +1,7 @@
 "use client";
 
+import type { Role } from "../../../lib/session";
+
 import { Bike, CheckCircle2, PackageCheck, Truck } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
 import PharmacistHeader, { ScheduleBadge } from "../../../components/pharmacist/PharmacistHeader";
@@ -16,7 +18,7 @@ const columns = [
 export default function StorePage() {
   const [data, setData] = useState<Data | null>(null);
   const [store, setStore] = useState("");
-  const [me, setMe] = useState<{ name: string; user?: { registrationNumber?: string | null } } | null>(null);
+  const [me, setMe] = useState<{ name: string; role?: Role; user?: { registrationNumber?: string | null } } | null>(null);
 
   const load = useCallback(async () => {
     const response = await fetch(`/api/pharmacist/store${store ? `?store=${store}` : ""}`);
@@ -32,7 +34,7 @@ export default function StorePage() {
 
   return (
     <main className="customer-home">
-      <PharmacistHeader name={me?.name} regNo={me?.user?.registrationNumber} />
+      <PharmacistHeader name={me?.name} regNo={me?.user?.registrationNumber} role={me?.role} />
       <div className="customer-content page-content">
         <div className="page-heading">
           <div><h1>Store orders</h1><p>Pick the approved items, pack with the store invoice number, then hand over to the rider.</p></div>

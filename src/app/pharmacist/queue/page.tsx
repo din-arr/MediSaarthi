@@ -1,5 +1,7 @@
 "use client";
 
+import type { Role } from "../../../lib/session";
+
 import { Clock, RefreshCw, Search } from "lucide-react";
 import Link from "next/link";
 import { useCallback, useEffect, useMemo, useState } from "react";
@@ -7,7 +9,7 @@ import PharmacistHeader, { ScheduleBadge } from "../../../components/pharmacist/
 
 type QueueOrder = { id: string; number: string; customer: string; patient: string; items: number; schedule: string; store: string; waitingMinutes: number; confidence: number | null };
 type Queue = { stats: { waiting: number; medianMinutes: number | null; approvedToday: number; rejectedToday: number }; orders: QueueOrder[] };
-type Me = { name: string; user?: { registrationNumber?: string | null } };
+type Me = { name: string; role?: Role; user?: { registrationNumber?: string | null } };
 
 export default function PharmacistQueuePage() {
   const [data, setData] = useState<Queue | null>(null);
@@ -38,7 +40,7 @@ export default function PharmacistQueuePage() {
 
   return (
     <main className="customer-home">
-      <PharmacistHeader name={me?.name} regNo={me?.user?.registrationNumber} />
+      <PharmacistHeader name={me?.name} regNo={me?.user?.registrationNumber} role={me?.role} />
       <div className="customer-content page-content">
         <div className="page-heading">
           <div><h1>Verification queue</h1><p>Oldest first. Every Schedule H and H1 item needs your decision.</p></div>

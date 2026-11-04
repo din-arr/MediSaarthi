@@ -1,5 +1,7 @@
 "use client";
 
+import type { Role } from "../../../lib/session";
+
 import { ShieldAlert, ShieldCheck } from "lucide-react";
 import { useEffect, useState } from "react";
 import PharmacistHeader from "../../../components/pharmacist/PharmacistHeader";
@@ -15,7 +17,7 @@ export default function DashboardPage() {
   const [showAll, setShowAll] = useState(false);
   const [reminder, setReminder] = useState("");
   const runReminders = async () => { const response = await fetch("/api/pharmacist/reminders", { method: "POST" }); const result = await response.json(); setReminder(response.ok ? `Checked ${result.checked} refills, sent ${result.sent} reminders.` : result.error); };
-  const [me, setMe] = useState<{ name: string; user?: { registrationNumber?: string | null } } | null>(null);
+  const [me, setMe] = useState<{ name: string; role?: Role; user?: { registrationNumber?: string | null } } | null>(null);
 
   useEffect(() => { fetch("/api/auth/session").then((response) => response.ok ? response.json() : null).then(setMe); }, []);
   useEffect(() => { fetch(`/api/pharmacist/dashboard?days=${days}`).then((response) => response.ok ? response.json() : null).then(setData); }, [days]);
@@ -26,7 +28,7 @@ export default function DashboardPage() {
 
   return (
     <main className="customer-home">
-      <PharmacistHeader name={me?.name} regNo={me?.user?.registrationNumber} />
+      <PharmacistHeader name={me?.name} regNo={me?.user?.registrationNumber} role={me?.role} />
       <div className="customer-content page-content">
         <div className="page-heading">
           <div><h1>All stores</h1><p>Orders, verification time and rejections across Kolkata and Howrah.</p></div>

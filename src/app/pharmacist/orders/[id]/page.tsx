@@ -1,5 +1,7 @@
 "use client";
 
+import type { Role } from "../../../../lib/session";
+
 import { ArrowLeft, Check, LoaderCircle, Lock, Maximize2, Pencil, RotateCw, X, ZoomIn, ZoomOut } from "lucide-react";
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
@@ -15,7 +17,7 @@ export default function VerifyOrderPage() {
   const { id } = useParams<{ id: string }>();
   const router = useRouter();
   const [order, setOrder] = useState<Order | null>(null);
-  const [me, setMe] = useState<{ name: string; user?: { registrationNumber?: string | null } } | null>(null);
+  const [me, setMe] = useState<{ name: string; role?: Role; user?: { registrationNumber?: string | null } } | null>(null);
   const [zoom, setZoom] = useState(1);
   const [rotate, setRotate] = useState(0);
   const [active, setActive] = useState(0);
@@ -91,7 +93,7 @@ export default function VerifyOrderPage() {
 
   return (
     <main className="customer-home">
-      <PharmacistHeader name={me?.name} regNo={me?.user?.registrationNumber} />
+      <PharmacistHeader name={me?.name} regNo={me?.user?.registrationNumber} role={me?.role} />
       <div className="customer-content page-content">
         <Link className="back-link" href="/pharmacist/queue"><ArrowLeft size={17} /> Queue</Link>
         <div className="page-heading">

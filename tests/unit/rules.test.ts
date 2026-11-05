@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { canAddToCart, checkTransition, type RuleOrder } from "../src/lib/pharmacy/rules";
+import { canAddToCart, checkTransition, needsPrescription, prescriptionExpired, type RuleOrder } from "../../src/lib/pharmacy/rules";
 
 const fresh = { uploadedAt: new Date(), issuedOn: new Date() };
 const order = (items: RuleOrder["items"], extra: Partial<RuleOrder> = {}): RuleOrder => ({ status: "AWAITING_PHARMACIST", items, prescription: fresh, verifiedByRegNo: "WB-PH-1", ...extra });
@@ -43,4 +43,42 @@ test("OTC-only orders don't need a prescription check", () => {
 
 test("a generic waiting for customer consent blocks approval", () => {
   assert.match(checkTransition(order([{ schedule: "H", approvalStatus: "APPROVED", awaitingConsent: true }]), "APPROVED")!, /accept or decline/);
+});
+
+test("rejecting or re-requesting skips the release checks", () => {
+  assert.equal(checkTransition(order([{ schedule: "H", approvalStatus: "PENDING" }]), "REJECTED"), null);
+  assert.equal(checkTransition(order([{ schedule: "H", approvalStatus: "PENDING" }]), "REUPLOAD_REQUESTED"), null);
+});
+
+test("an order with every item rejected can't be approved", () => {
+  assert.match(checkTransition(order([{ schedule: "H", approvalStatus: "REJECTED" }]), "APPROVED")!, /Every item was rejected/);
+});
+
+test("messages fall back to a generic label when the item has no name", () => {
+  assert.match(checkTransition(order([{ schedule: "H", approvalStatus: "APPROVED", awaitingConsent: true }]), "APPROVED")!, /an item/);
+  assert.match(checkTransition(order([{ schedule: "H", approvalStatus: "PENDING" }]), "APPROVED")!, /^An item/);
+  assert.match(checkTransition(order([{ schedule: "H1", approvalStatus: "APPROVED" }]), "APPROVED")!, /A Schedule H1 item/);
+  assert.match(checkTransition(order([{ schedule: "H1", approvalStatus: "APPROVED", name: "Alprazolam" }]), "APPROVED")!, /Alprazolam/);
+});
+
+test("Schedule X can be allowed by config", () => {
+  const rules = { prescriptionValidityDays: 180, xAllowedOnline: true };
+  assert.equal(canAddToCart("X", rules), true);
+  assert.equal(canAddToCart("OTC"), true);
+  assert.equal(checkTransition(order([{ schedule: "X", approvalStatus: "APPROVED" }]), "APPROVED", rules), null);
+});
+
+test("missing prescription counts as expired; upload date is used when issue date is missing", () => {
+  assert.equal(prescriptionExpired(order([], { prescription: null })), true);
+  assert.equal(prescriptionExpired(order([], { prescription: { uploadedAt: new Date(), issuedOn: null } })), false);
+  const now = new Date("2026-06-01");
+  assert.equal(prescriptionExpired(order([], { prescription: { uploadedAt: new Date("2026-05-01") } }), { prescriptionValidityDays: 10, xAllowedOnline: false }, now), true);
+});
+
+test("unknown starting status is refused", () => {
+  assert.match(checkTransition({ ...order([]), status: "WEIRD" as never }, "APPROVED")!, /can't move/);
+});
+
+test("needsPrescription is only H and H1", () => {
+  assert.deepEqual((["OTC", "H", "H1", "X"] as const).map(needsPrescription), [false, true, true, false]);
 });

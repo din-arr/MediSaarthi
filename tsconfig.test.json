@@ -1,0 +1,11 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "paths": {
+      "@/*": ["./src/*"],
+      "next/headers": ["./tests/support/next-headers.ts"],
+      "firebase-admin/app": ["./tests/support/firebase-app.ts"],
+      "firebase-admin/auth": ["./tests/support/firebase-auth.ts"]
+    }
+  }
+}

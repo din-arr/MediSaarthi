@@ -23,5 +23,5 @@ jobs:
         run: npm run lint
       - name: Type check
         run: npm run typecheck
-      - name: Tests (Schedule H rules, routing, location)
+      - name: Unit + integration tests (fails under 90% coverage)
         run: npm test

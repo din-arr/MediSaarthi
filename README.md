@@ -64,12 +64,19 @@ Seed data matches the client's sample orders RX-50211, RX-50214 and RX-50219.
 ### Useful scripts
 
 ```bash
-npm test                # Schedule H rules, routing, location
+npm test                # unit + integration tests, fails under 90% coverage
+npm run test:fast       # same tests, no coverage gate
 npm run test:rules      # Schedule H/H1/X rules only
 npm run test:routing    # store routing
 npm run stock:import -- data/stock-2026-11-03.csv   # daily stock CSV
 npm run reminders       # send refill reminders (normally a daily job)
 ```
+
+### Tests
+
+- `tests/unit`: pure logic (Schedule rules, routing, matching, encryption, cart, proxy).
+- `tests/integration`: every API route handler, run against a fresh SQLite database (`prisma/test.db`).
+- Coverage covers `src/lib`, `src/app/api` and `src/proxy.ts`, with a minimum of 90% lines, branches and functions. CI runs it on every push and pull request.
 
 ## How it's built
 
@@ -99,7 +106,7 @@ All the rules live in `src/lib/pharmacy/rules.ts` and run **on the server** for 
 - Rules are stored in a `RuleConfig` table, because online pharmacy rules in India aren't final.
 - The dashboard checks every dispatched order and shows a red banner if any H/H1 item ever left without approval.
 
-`tests/rules.test.ts` covers these cases.
+`tests/unit/rules.test.ts` covers these cases.
 
 ## Privacy (DPDP Act 2023)
 

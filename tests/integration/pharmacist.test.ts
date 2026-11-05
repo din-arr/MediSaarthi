@@ -1,15 +1,26 @@
 import assert from "node:assert/strict";
 import { beforeEach, test } from "node:test";
-import { GET as queue } from "../../src/app/api/pharmacist/queue/route";
-import { GET as orderDetail } from "../../src/app/api/pharmacist/orders/[id]/route";
-import { PATCH as decideItem } from "../../src/app/api/pharmacist/orders/[id]/items/[itemId]/route";
-import { POST as decide } from "../../src/app/api/pharmacist/orders/[id]/decision/route";
-import { GET as prescriptionFile } from "../../src/app/api/pharmacist/prescriptions/[id]/file/route";
-import { GET as storeOrders } from "../../src/app/api/pharmacist/store/route";
-import { GET as dashboard } from "../../src/app/api/pharmacist/dashboard/route";
-import { POST as runReminders } from "../../src/app/api/pharmacist/reminders/route";
+import { GET as queueRoute } from "../../src/app/api/pharmacist/queue/route";
+import { GET as orderDetailRoute } from "../../src/app/api/pharmacist/orders/[id]/route";
+import { PATCH as decideItemRoute } from "../../src/app/api/pharmacist/orders/[id]/items/[itemId]/route";
+import { POST as decideRoute } from "../../src/app/api/pharmacist/orders/[id]/decision/route";
+import { GET as prescriptionFileRoute } from "../../src/app/api/pharmacist/prescriptions/[id]/file/route";
+import { GET as storeOrdersRoute } from "../../src/app/api/pharmacist/store/route";
+import { GET as dashboardRoute } from "../../src/app/api/pharmacist/dashboard/route";
+import { POST as runRemindersRoute } from "../../src/app/api/pharmacist/reminders/route";
 import { encryptBuffer } from "../../src/lib/prescriptions/crypto";
 import { jsonRequest, makeOrder, params, prisma, seedWorld, signIn, stub, type World } from "../support/db";
+
+// Staff handlers can return early with an auth error, so TypeScript sees `Response | undefined`.
+const sure = <A extends unknown[]>(handler: (...args: A) => Promise<Response | undefined>) => async (...args: A) => (await handler(...args)) as Response;
+const queue = sure(queueRoute);
+const orderDetail = sure(orderDetailRoute);
+const decideItem = sure(decideItemRoute);
+const decide = sure(decideRoute);
+const prescriptionFile = sure(prescriptionFileRoute);
+const storeOrders = sure(storeOrdersRoute);
+const dashboard = sure(dashboardRoute);
+const runReminders = sure(runRemindersRoute);
 
 let world: World;
 beforeEach(async () => { world = await seedWorld(); await signIn(world.users.pharmacist); });

@@ -35,7 +35,7 @@ export default function UploadPage() {
   const [addressPickerOpen, setAddressPickerOpen] = useState(false);
   const [addressAttention, setAddressAttention] = useState(false);
 
-  useEffect(() => { fetch("/api/family").then((r) => r.json()).then(setMembers); fetch("/api/addresses").then((r) => r.json()).then((value: Address[]) => { setAddresses(value); setAddressId(value.find((item) => item.isDefault)?.id ?? value[0]?.id ?? ""); }); }, []);
+  useEffect(() => { fetch("/api/family").then((r) => r.ok ? r.json() : []).then(setMembers).catch(() => setMembers([])); fetch("/api/addresses").then((r) => r.json()).then((value: Address[]) => { setAddresses(value); setAddressId(value.find((item) => item.isDefault)?.id ?? value[0]?.id ?? ""); }); }, []);
   useEffect(() => {
     if (!addressId || !draft.length) return;
     void fetch("/api/orders/routing", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ addressId, items: draft.map((item) => ({ productId: item.productId, quantity: item.quantity })) }) }).then((response) => response.json()).then((result: { storeName?: string; distanceKm?: number; routingReason?: string; error?: string }) => setRoutingMessage(result.storeName ? `${result.storeName} · ${result.distanceKm?.toFixed(1)} km · ${t.dashboard.sameDay}` : result.error ?? ""));

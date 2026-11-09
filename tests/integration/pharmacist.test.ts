@@ -233,6 +233,10 @@ test("store screen: staff see their own store, pharmacists can filter", async ()
   assert.equal(filtered.orders.length, 1);
   assert.equal(filtered.orders[0].address, "");
   assert.equal(filtered.orders[0].phone, "9000000001");
+  await signIn(world.users.ops);
+  const opsView = await (await storeOrders(get("/api/pharmacist/store"))).json();
+  assert.equal(opsView.stores.length, 2);
+  assert.equal(opsView.orders.length, 2);
   await signIn(world.users.staff);
   const own = await (await storeOrders(get(`/api/pharmacist/store?store=${world.stores.behala.id}`))).json();
   assert.deepEqual(own.stores.map((store: { name: string }) => store.name), ["MediSaarthi Salt Lake"]);

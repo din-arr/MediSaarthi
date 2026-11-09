@@ -20,7 +20,8 @@ test("each role can only open its own screens", () => {
   assert.equal(canOpen("STORE_STAFF", "/pharmacist/queue"), false);
   assert.equal(canOpen("STORE_STAFF", "/pharmacist/store"), true);
   assert.equal(canOpen("OPS", "/pharmacist/dashboard"), true);
-  assert.equal(canOpen("OPS", "/pharmacist/store"), false);
+  assert.equal(canOpen("OPS", "/pharmacist/store"), true);
+  assert.equal(canOpen("OPS", "/pharmacist/queue"), false);
   // Unlisted staff pages: any staff role, never customers.
   assert.equal(canOpen("OPS", "/pharmacist/help"), true);
   assert.equal(canOpen("CUSTOMER", "/pharmacist/help"), false);

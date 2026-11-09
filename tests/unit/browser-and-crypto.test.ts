@@ -122,7 +122,7 @@ test("proxy sends visitors to login and each role to its own home", async () => 
   assert.equal((await visit("/home")).headers.get("location"), "http://localhost/login");
   assert.equal((await visit("/pharmacist/queue", "CUSTOMER")).headers.get("location"), "http://localhost/home");
   assert.equal((await visit("/home", "STORE_STAFF")).headers.get("location"), "http://localhost/pharmacist/store");
-  assert.equal((await visit("/pharmacist/store", "OPS")).headers.get("location"), "http://localhost/pharmacist/dashboard");
+  assert.equal((await visit("/pharmacist/queue", "OPS")).headers.get("location"), "http://localhost/pharmacist/dashboard");
   const allowed = await visit("/pharmacist/queue", "PHARMACIST");
   assert.equal(allowed.headers.get("location"), null);
   assert.equal(allowed.headers.get("x-middleware-next"), "1");

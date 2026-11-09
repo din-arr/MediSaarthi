@@ -7,6 +7,7 @@ import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
 import { useCallback, useEffect, useState, Suspense } from "react";
 import PharmacistHeader, { ScheduleBadge } from "../../../../components/pharmacist/PharmacistHeader";
+import { useStaffText } from "../../../../components/pharmacist/useStaffText";
 
 type Item = { id: string; productId: string; name: string; strength: string; packSize: string; schedule: string; quantity: number; originalQty: number | null; approvalStatus: "PENDING" | "APPROVED" | "EDITED" | "REJECTED"; rejectReason: string | null; confidence: number | null; otherStrengths: Array<{ id: string; strength: string; packSize: string }>; price: number; consentStatus: string; generic: { name: string; strength: string; price: number } | null };
 type Order = { id: string; number: string; status: string; createdAt: string; decisionReason: string | null; customer: { name: string; phone: string }; patient: { name: string; relation: string }; address: string; store: string | null; prescription: { id: string; doctorName: string; doctorRegNo: string; issuedOn: string | null; uploadedAt: string } | null; items: Item[]; audit: Array<{ action: string; by: string; at: string }> };
@@ -36,6 +37,7 @@ function VerifyOrder() {
   const [orderReason, setOrderReason] = useState("");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
+  const s = useStaffText();
 
   const load = useCallback(async () => {
     const response = await fetch(`/api/pharmacist/orders/${id}`).catch(() => null);
@@ -86,7 +88,7 @@ function VerifyOrder() {
     router.push("/pharmacist/queue");
   };
 
-  if (!order) return <main className="customer-home"><PharmacistHeader /><div className="customer-content page-content">{error ? <p className="form-error">{error}</p> : <div className="home-skeleton"><span /><span /></div>}</div></main>;
+  if (!order) return <main className="customer-home"><PharmacistHeader /><div className="customer-content page-content">{error ? <p className="form-error">{s(error)}</p> : <div className="home-skeleton"><span /><span /></div>}</div></main>;
 
   const open = ["AWAITING_PHARMACIST", "PARTIAL"].includes(order.status);
   const allDecided = order.items.every((item) => item.approvalStatus !== "PENDING");
@@ -100,10 +102,10 @@ function VerifyOrder() {
     <main className="customer-home">
       <PharmacistHeader name={me?.name} regNo={me?.user?.registrationNumber} role={me?.role} />
       <div className="customer-content page-content">
-        <Link className="back-link" href="/pharmacist/queue"><ArrowLeft size={17} /> Queue</Link>
+        <Link className="back-link" href="/pharmacist/queue"><ArrowLeft size={17} /> {s("Queue")}</Link>
         <div className="page-heading">
-          <div><h1>{order.number}</h1><p>{order.patient.name} ({order.patient.relation}) · ordered by {order.customer.name} · {order.store ?? "Store not assigned"}</p></div>
-          <span className={`status-pill ${open ? "pending" : order.status === "REJECTED" ? "rejected" : "approved"}`}>{order.status.replaceAll("_", " ").toLowerCase()}</span>
+          <div><h1>{order.number}</h1><p>{order.patient.name} ({s(order.patient.relation)}) · {s("ordered by {name}", { name: order.customer.name })} · {order.store ?? s("Store not assigned")}</p></div>
+          <span className={`status-pill ${open ? "pending" : order.status === "REJECTED" ? "rejected" : "approved"}`}>{s(order.status.replaceAll("_", " ").toLowerCase())}</span>
         </div>
 
         <div className="ph-verify">
@@ -114,66 +116,66 @@ function VerifyOrder() {
               <button className="icon-button" type="button" aria-label="Zoom in" onClick={() => setZoom((value) => Math.min(3, value + 0.25))}><ZoomIn size={18} /></button>
               <button className="icon-button" type="button" aria-label="Rotate" onClick={() => setRotate((value) => (value + 90) % 360)}><RotateCw size={18} /></button>
               <button className="icon-button" type="button" aria-label="Fit" onClick={() => { setZoom(1); setRotate(0); }}><Maximize2 size={18} /></button>
-              <span className="ph-logged"><Lock size={14} /> Access is logged</span>
+              <span className="ph-logged"><Lock size={14} /> {s("Access is logged")}</span>
             </div>
             <div className="ph-image-frame">
               {order.prescription ? (
                 // eslint-disable-next-line @next/next/no-img-element
                 <img src={`/api/pharmacist/prescriptions/${order.prescription.id}/file`} alt="Uploaded prescription" style={{ transform: `scale(${zoom}) rotate(${rotate}deg)` }} />
-              ) : <p className="empty-copy">No prescription uploaded. Only OTC items can be approved.</p>}
+              ) : <p className="empty-copy">{s("No prescription uploaded. Only OTC items can be approved.")}</p>}
             </div>
           </section>
 
           <section className="ph-panel">
             <div className="ph-card">
-              <h2>Prescription details</h2>
-              <p className="muted-small">Check these against the image. Required for Schedule H and H1.</p>
+              <h2>{s("Prescription details")}</h2>
+              <p className="muted-small">{s("Check these against the image. Required for Schedule H and H1.")}</p>
               <div className="ph-grid-2">
-                <label className="field-label">Doctor&apos;s name<input className="text-input" value={doctor.name} disabled={!open} onChange={(event) => setDoctor({ ...doctor, name: event.target.value })} placeholder="Dr. S. Banerjee" /></label>
-                <label className="field-label">Registration no.<input className="text-input" value={doctor.regNo} disabled={!open} onChange={(event) => setDoctor({ ...doctor, regNo: event.target.value })} placeholder="WBMC 48213" /></label>
-                <label className="field-label">Date on prescription<input className="text-input" type="date" value={doctor.issuedOn} disabled={!open} onChange={(event) => setDoctor({ ...doctor, issuedOn: event.target.value })} /></label>
-                {needsH1 && <label className="field-label">Patient address (H1 register)<input className="text-input" value={doctor.patientAddress} disabled={!open} onChange={(event) => setDoctor({ ...doctor, patientAddress: event.target.value })} /></label>}
+                <label className="field-label">{s("Doctor's name")}<input className="text-input" value={doctor.name} disabled={!open} onChange={(event) => setDoctor({ ...doctor, name: event.target.value })} placeholder="Dr. S. Banerjee" /></label>
+                <label className="field-label">{s("Registration no.")}<input className="text-input" value={doctor.regNo} disabled={!open} onChange={(event) => setDoctor({ ...doctor, regNo: event.target.value })} placeholder="WBMC 48213" /></label>
+                <label className="field-label">{s("Date on prescription")}<input className="text-input" type="date" value={doctor.issuedOn} disabled={!open} onChange={(event) => setDoctor({ ...doctor, issuedOn: event.target.value })} /></label>
+                {needsH1 && <label className="field-label">{s("Patient address (H1 register)")}<input className="text-input" value={doctor.patientAddress} disabled={!open} onChange={(event) => setDoctor({ ...doctor, patientAddress: event.target.value })} /></label>}
               </div>
             </div>
 
             <div className="ph-card">
-              <div className="section-heading"><h2>Items <small className="muted-small">AI draft, check each one</small></h2><span className="muted-small">A approve · R reject · ↑↓ move</span></div>
+              <div className="section-heading"><h2>{s("Items")} <small className="muted-small">{s("AI draft, check each one")}</small></h2><span className="muted-small">{s("A approve · R reject · ↑↓ move")}</span></div>
               <ul className="ph-items">
                 {order.items.map((item, index) => (
                   <li key={item.id} className={`ph-item ${index === active ? "active" : ""} ${item.approvalStatus.toLowerCase()}`} onClick={() => setActive(index)}>
                     <div className="ph-item-main">
                       <div>
                         <strong>{item.name} {item.strength}</strong> <ScheduleBadge schedule={item.schedule} />
-                        <small>{item.quantity} × {item.packSize}{item.originalQty ? ` (customer asked for ${item.originalQty})` : ""}{item.confidence != null ? ` · AI ${Math.round(item.confidence * 100)}%` : ""}</small>
-                        {item.confidence != null && item.confidence < 0.8 && <small className="ph-low">Low confidence. Read the image carefully.</small>}
-                        {item.rejectReason && <small className="ph-reject-note">Rejected: {item.rejectReason}</small>}
-                        {item.consentStatus === "PENDING" && <small className="ph-low">Generic offered. Waiting for the customer to accept.</small>}
-                        {item.consentStatus === "ACCEPTED" && <small className="ok-note">Customer accepted the generic</small>}
-                        {item.consentStatus === "DECLINED" && <small className="muted-small">Customer kept the original brand</small>}
+                        <small>{item.quantity} × {item.packSize}{item.originalQty ? ` ${s("(customer asked for {n})", { n: item.originalQty })}` : ""}{item.confidence != null ? ` · AI ${Math.round(item.confidence * 100)}%` : ""}</small>
+                        {item.confidence != null && item.confidence < 0.8 && <small className="ph-low">{s("Low confidence. Read the image carefully.")}</small>}
+                        {item.rejectReason && <small className="ph-reject-note">{s("Rejected: {reason}", { reason: s(item.rejectReason) })}</small>}
+                        {item.consentStatus === "PENDING" && <small className="ph-low">{s("Generic offered. Waiting for the customer to accept.")}</small>}
+                        {item.consentStatus === "ACCEPTED" && <small className="ok-note">{s("Customer accepted the generic")}</small>}
+                        {item.consentStatus === "DECLINED" && <small className="muted-small">{s("Customer kept the original brand")}</small>}
                         {open && item.generic && item.consentStatus === "NONE" && item.approvalStatus !== "REJECTED" && (
                           <button className="generic-offer" type="button" onClick={(event) => { event.stopPropagation(); void decide(item, { offerGeneric: true }); }}>
-                            Offer generic: {item.generic.name} {item.generic.strength} · ₹{item.generic.price} <b>(saves ₹{(item.price - item.generic.price) * item.quantity})</b>
+                            {s("Offer generic:")} {item.generic.name} {item.generic.strength} · ₹{item.generic.price} <b>{s("(saves ₹{n})", { n: (item.price - item.generic.price) * item.quantity })}</b>
                           </button>
                         )}
                       </div>
                       {open && (
                         <div className="ph-item-actions">
-                          <button className={`ph-act ok ${item.approvalStatus === "APPROVED" || item.approvalStatus === "EDITED" ? "on" : ""}`} type="button" onClick={() => decide(item, { decision: "APPROVED" })}><Check size={16} /> Approve</button>
-                          <button className="ph-act" type="button" onClick={() => setEditing(editing === item.id ? null : item.id)}><Pencil size={15} /> Edit</button>
-                          <button className={`ph-act no ${item.approvalStatus === "REJECTED" ? "on" : ""}`} type="button" onClick={() => setRejecting(rejecting === item.id ? null : item.id)}><X size={16} /> Reject</button>
+                          <button className={`ph-act ok ${item.approvalStatus === "APPROVED" || item.approvalStatus === "EDITED" ? "on" : ""}`} type="button" onClick={() => decide(item, { decision: "APPROVED" })}><Check size={16} /> {s("Approve")}</button>
+                          <button className="ph-act" type="button" onClick={() => setEditing(editing === item.id ? null : item.id)}><Pencil size={15} /> {s("Edit")}</button>
+                          <button className={`ph-act no ${item.approvalStatus === "REJECTED" ? "on" : ""}`} type="button" onClick={() => setRejecting(rejecting === item.id ? null : item.id)}><X size={16} /> {s("Reject")}</button>
                         </div>
                       )}
                     </div>
                     {editing === item.id && <EditItem item={item} onSave={(body) => decide(item, { decision: "APPROVED", ...body })} />}
                     {rejecting === item.id && (
                       <div className="ph-inline-form">
-                        <select className="text-input" value={reason} onChange={(event) => setReason(event.target.value)}>{rejectReasons.map((value) => <option key={value}>{value}</option>)}</select>
-                        {reason === "Other" && <input className="text-input" placeholder="Reason for the customer" value={note} onChange={(event) => setNote(event.target.value)} />}
-                        <button className="ph-act no on" type="button" onClick={() => decide(item, { decision: "REJECTED", reason: reason === "Other" ? note : reason })}>Confirm reject</button>
+                        <select className="text-input" value={reason} onChange={(event) => setReason(event.target.value)}>{rejectReasons.map((value) => <option key={value} value={value}>{s(value)}</option>)}</select>
+                        {reason === "Other" && <input className="text-input" placeholder={s("Reason for the customer")} value={note} onChange={(event) => setNote(event.target.value)} />}
+                        <button className="ph-act no on" type="button" onClick={() => decide(item, { decision: "REJECTED", reason: reason === "Other" ? note : reason })}>{s("Confirm reject")}</button>
                       </div>
                     )}
                     {open && item.approvalStatus !== "REJECTED" && (
-                      <label className="ph-dose">Tablets per day <input type="number" min="0" step="0.5" className="text-input" value={doses[item.id] ?? ""} placeholder="e.g. 2" onChange={(event) => setDoses({ ...doses, [item.id]: event.target.value })} /><small>Used for the refill reminder</small></label>
+                      <label className="ph-dose">{s("Tablets per day")} <input type="number" min="0" step="0.5" className="text-input" value={doses[item.id] ?? ""} placeholder="e.g. 2" onChange={(event) => setDoses({ ...doses, [item.id]: event.target.value })} /><small>{s("Used for the refill reminder")}</small></label>
                     )}
                   </li>
                 ))}
@@ -186,23 +188,23 @@ function VerifyOrder() {
               <div className="ph-card ph-finish">
                 {orderAction ? (
                   <>
-                    <label className="field-label">{orderAction === "reupload" ? "What should the customer fix?" : "Why is this order rejected?"}<textarea className="text-input" rows={3} value={orderReason} onChange={(event) => setOrderReason(event.target.value)} placeholder={orderAction === "reupload" ? "The photo is blurred. Please upload a clearer photo of the whole prescription." : ""} /></label>
-                    <div className="dialog-actions"><button className="secondary-button" type="button" onClick={() => setOrderAction(null)}>Cancel</button><button className="danger-button" type="button" disabled={busy || !orderReason.trim()} onClick={() => finish(orderAction)}>{orderAction === "reupload" ? "Ask for re-upload" : "Reject order"}</button></div>
+                    <label className="field-label">{orderAction === "reupload" ? s("What should the customer fix?") : s("Why is this order rejected?")}<textarea className="text-input" rows={3} value={orderReason} onChange={(event) => setOrderReason(event.target.value)} placeholder={orderAction === "reupload" ? s("The photo is blurred. Please upload a clearer photo of the whole prescription.") : ""} /></label>
+                    <div className="dialog-actions"><button className="secondary-button" type="button" onClick={() => setOrderAction(null)}>{s("Cancel")}</button><button className="danger-button" type="button" disabled={busy || !orderReason.trim()} onClick={() => finish(orderAction)}>{orderAction === "reupload" ? s("Ask for re-upload") : s("Reject order")}</button></div>
                   </>
                 ) : (
                   <>
-                    <button className="auth-primary" type="button" disabled={busy || !allDecided || !rxReady || !h1Ready || keptCount === 0} onClick={() => finish("approve")}>{busy ? <LoaderCircle className="button-spinner" /> : `Approve order (${keptCount} item${keptCount === 1 ? "" : "s"})`}</button>
-                    {!allDecided && <p className="muted-small">Decide every item to approve the order.</p>}
-                    {allDecided && !rxReady && <p className="muted-small">Fill in the doctor&apos;s details above.</p>}
-                    {allDecided && rxReady && !h1Ready && <p className="muted-small">Add the patient&apos;s address for the H1 register.</p>}
-                    <div className="ph-secondary-actions"><button className="secondary-button" type="button" onClick={() => setOrderAction("reupload")}>Request re-upload</button><button className="secondary-button danger-text" type="button" onClick={() => setOrderAction("reject")}>Reject order</button></div>
+                    <button className="auth-primary" type="button" disabled={busy || !allDecided || !rxReady || !h1Ready || keptCount === 0} onClick={() => finish("approve")}>{busy ? <LoaderCircle className="button-spinner" /> : s(keptCount === 1 ? "Approve order ({n} item)" : "Approve order ({n} items)", { n: keptCount })}</button>
+                    {!allDecided && <p className="muted-small">{s("Decide every item to approve the order.")}</p>}
+                    {allDecided && !rxReady && <p className="muted-small">{s("Fill in the doctor's details above.")}</p>}
+                    {allDecided && rxReady && !h1Ready && <p className="muted-small">{s("Add the patient's address for the H1 register.")}</p>}
+                    <div className="ph-secondary-actions"><button className="secondary-button" type="button" onClick={() => setOrderAction("reupload")}>{s("Request re-upload")}</button><button className="secondary-button danger-text" type="button" onClick={() => setOrderAction("reject")}>{s("Reject order")}</button></div>
                   </>
                 )}
               </div>
-            ) : order.decisionReason && <p className="ph-card">Reason given: {order.decisionReason}</p>}
+            ) : order.decisionReason && <p className="ph-card">{s("Reason given: {reason}", { reason: order.decisionReason })}</p>}
 
             {order.audit.length > 0 && (
-              <details className="ph-card"><summary>History</summary><ul className="ph-audit">{order.audit.map((log, index) => <li key={index}><strong>{log.action.replaceAll("_", " ").toLowerCase()}</strong> by {log.by} · {new Date(log.at).toLocaleString()}</li>)}</ul></details>
+              <details className="ph-card"><summary>{s("History")}</summary><ul className="ph-audit">{order.audit.map((log, index) => <li key={index}><strong>{s(log.action.replaceAll("_", " ").toLowerCase())}</strong> {s("by {name}", { name: log.by })} · {new Date(log.at).toLocaleString()}</li>)}</ul></details>
             )}
           </section>
         </div>
@@ -214,6 +216,7 @@ function VerifyOrder() {
 function EditItem({ item, onSave }: { item: Item; onSave: (body: { quantity: number; productId: string }) => void }) {
   const [quantity, setQuantity] = useState(item.quantity);
   const [productId, setProductId] = useState(item.productId);
+  const s = useStaffText();
   return (
     <div className="ph-inline-form">
       <select className="text-input" value={productId} onChange={(event) => setProductId(event.target.value)}>
@@ -221,7 +224,7 @@ function EditItem({ item, onSave }: { item: Item; onSave: (body: { quantity: num
         {item.otherStrengths.map((option) => <option key={option.id} value={option.id}>{option.strength} · {option.packSize}</option>)}
       </select>
       <div className="stepper"><button type="button" onClick={() => setQuantity(Math.max(1, quantity - 1))}>−</button><span>{quantity}</span><button type="button" onClick={() => setQuantity(Math.min(30, quantity + 1))}>+</button></div>
-      <button className="ph-act ok on" type="button" onClick={() => onSave({ quantity, productId })}>Save and approve</button>
+      <button className="ph-act ok on" type="button" onClick={() => onSave({ quantity, productId })}>{s("Save and approve")}</button>
     </div>
   );
 }

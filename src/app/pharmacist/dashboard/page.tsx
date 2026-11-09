@@ -76,6 +76,7 @@ export default function DashboardPage() {
             </section>
           </div>
           <section className="flow-card reminder-job"><div><h2>Refill reminders</h2><p className="muted-small">Runs every morning. Texts customers whose medicine runs out within 5 days.</p>{reminder && <p className="ok-note">{reminder}</p>}</div><button className="secondary-button" type="button" onClick={runReminders}>Run now</button></section>
+          <section className="flow-card reminder-job"><div><h2>Schedule H1 register</h2><p className="muted-small">Every H1 sale with patient, prescriber and dispensing pharmacist. Last 90 days.</p></div><a className="secondary-button" href="/api/pharmacist/h1-register?days=90" download>Download CSV</a></section>
         </>}
       </div>
     </main>

@@ -4,7 +4,7 @@ import { requireRole } from "../../../../lib/pharmacy/auth";
 
 /** Orders the store needs to pick, pack and hand over. */
 export async function GET(request: Request) {
-  const auth = await requireRole("STORE_STAFF", "PHARMACIST");
+  const auth = await requireRole("STORE_STAFF", "PHARMACIST", "OPS");
   if ("error" in auth) return auth.error;
   // Store staff only ever see their own store.
   const ownStore = auth.session.role === "STORE_STAFF" ? auth.session.user.storeId : null;

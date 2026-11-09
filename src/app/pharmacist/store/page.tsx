@@ -39,7 +39,7 @@ export default function StorePage() {
       <PharmacistHeader name={me?.name} regNo={me?.user?.registrationNumber} role={me?.role} />
       <div className="customer-content page-content">
         <div className="page-heading">
-          <div><h1>{s("Store orders")}</h1><p>{s("Pick the approved items, pack with the store invoice number, then hand over to the rider.")}</p></div>
+          <div><h1>{s("Store orders")}</h1><p>{me?.role === "OPS" ? s("View only. Store staff pick, pack and hand over orders.") : s("Pick the approved items, pack with the store invoice number, then hand over to the rider.")}</p></div>
           {me?.role === "STORE_STAFF" ? <span className="text-input store-select">{data?.stores[0]?.name ?? s("Your store")}</span> : <select className="text-input store-select" value={store} onChange={(event) => setStore(event.target.value)}>
             <option value="">{s("All 46 stores")}</option>
             {data?.stores.map((item) => <option key={item.id} value={item.id}>{item.name}</option>)}
@@ -52,7 +52,7 @@ export default function StorePage() {
               return (
                 <section className="store-column" key={column.status}>
                   <h2><column.icon size={18} /> {s(column.title)} <span className="count-pill">{list.length}</span></h2>
-                  {list.length === 0 ? <p className="empty-copy">{s("Nothing here right now.")}</p> : list.map((order) => <StoreCard key={order.id} order={order} onDone={load} />)}
+                  {list.length === 0 ? <p className="empty-copy">{s("Nothing here right now.")}</p> : list.map((order) => <StoreCard key={order.id} order={order} onDone={load} readOnly={me?.role === "OPS"} />)}
                 </section>
               );
             })}
@@ -63,7 +63,7 @@ export default function StorePage() {
   );
 }
 
-function StoreCard({ order, onDone }: { order: StoreOrder; onDone: () => void }) {
+function StoreCard({ order, onDone, readOnly = false }: { order: StoreOrder; onDone: () => void; readOnly?: boolean }) {
   const [picked, setPicked] = useState<string[]>([]);
   const [invoice, setInvoice] = useState("");
   const [rider, setRider] = useState("");
@@ -88,7 +88,12 @@ function StoreCard({ order, onDone }: { order: StoreOrder; onDone: () => void })
         <span className={`status-pill ${order.paymentStatus === "PAID" ? "approved" : "pending"}`}>{order.paymentStatus === "PAID" ? s("Paid") : order.paymentMethod === "COD" ? s("COD ₹{n}", { n: order.total }) : s("Awaiting payment")}</span>
       </div>
 
-      {order.status === "APPROVED" && <>
+      {readOnly && <>
+        <ul className="pick-list">{order.items.map((item) => <li key={item.id}><span><strong>{item.quantity} × {item.name}</strong><small>{item.pack}</small></span> <ScheduleBadge schedule={item.schedule} /></li>)}</ul>
+        <p className="muted-small">{[order.invoiceNumber && s("Invoice {no}", { no: order.invoiceNumber }), order.riderName && s("With {name}", { name: order.riderName }), order.address].filter(Boolean).join(" · ")}</p>
+      </>}
+
+      {!readOnly && order.status === "APPROVED" && <>
         <ul className="pick-list">
           {order.items.map((item) => (
             <li key={item.id}><label>
@@ -104,13 +109,13 @@ function StoreCard({ order, onDone }: { order: StoreOrder; onDone: () => void })
         {order.paymentMethod && !allPicked && <small className="muted-small">{s("Tick every item as you pick it.")}</small>}
       </>}
 
-      {order.status === "PACKED" && <>
+      {!readOnly && order.status === "PACKED" && <>
         <p className="muted-small">{s("Invoice {no}", { no: order.invoiceNumber ?? "" })} · {order.address}</p>
         <label className="field-label">{s("Rider")}<input className="text-input" placeholder={s("Rider's name")} value={rider} onChange={(event) => setRider(event.target.value)} /></label>
         <button className="auth-primary" type="button" disabled={busy || !rider.trim()} onClick={() => move("OUT_FOR_DELIVERY")}>{s("Hand over to rider")}</button>
       </>}
 
-      {order.status === "OUT_FOR_DELIVERY" && <>
+      {!readOnly && order.status === "OUT_FOR_DELIVERY" && <>
         <p className="muted-small">{s("With {name}", { name: order.riderName ?? "" })} · {order.address} · {order.phone}</p>
         <button className="secondary-button" type="button" disabled={busy} onClick={() => move("DELIVERED")}><CheckCircle2 size={16} /> {s(order.paymentMethod === "COD" ? "Mark delivered (cash collected)" : "Mark delivered")}</button>
       </>}

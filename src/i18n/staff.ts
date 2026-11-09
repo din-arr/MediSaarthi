@@ -7,7 +7,7 @@
 export const staffText: Record<"bn" | "hi", Record<string, string>> = {
   bn: {
     // Header
-    "Queue": "কিউ", "Store orders": "স্টোরের অর্ডার", "Dashboard": "ড্যাশবোর্ড", "Pharmacist": "ফার্মাসিস্ট", "Store": "স্টোর", "Operations": "অপারেশনস", "Staff": "স্টাফ", "Log out": "লগ আউট", "Schedule {code}": "শিডিউল {code}",
+    "Queue": "কিউ", "Store orders": "স্টোরের অর্ডার", "View only. Store staff pick, pack and hand over orders.": "শুধু দেখার জন্য। স্টোরের কর্মীরা অর্ডার বেছে, প্যাক করে রাইডারকে দেন।", "Dashboard": "ড্যাশবোর্ড", "Pharmacist": "ফার্মাসিস্ট", "Store": "স্টোর", "Operations": "অপারেশনস", "Staff": "স্টাফ", "Log out": "লগ আউট", "Schedule {code}": "শিডিউল {code}",
     // Queue
     "Couldn't load the queue. Try logging in again.": "কিউ লোড করা যায়নি। আবার লগ ইন করে দেখুন।",
     "Verification queue": "যাচাইয়ের কিউ",
@@ -67,7 +67,7 @@ export const staffText: Record<"bn" | "hi", Record<string, string>> = {
   },
   hi: {
     // Header
-    "Queue": "कतार", "Store orders": "स्टोर के ऑर्डर", "Dashboard": "डैशबोर्ड", "Pharmacist": "फार्मासिस्ट", "Store": "स्टोर", "Operations": "ऑपरेशंस", "Staff": "स्टाफ", "Log out": "लॉग आउट", "Schedule {code}": "शेड्यूल {code}",
+    "Queue": "कतार", "Store orders": "स्टोर के ऑर्डर", "View only. Store staff pick, pack and hand over orders.": "सिर्फ़ देखने के लिए। स्टोर स्टाफ़ ऑर्डर चुनते, पैक करते और राइडर को देते हैं।", "Dashboard": "डैशबोर्ड", "Pharmacist": "फार्मासिस्ट", "Store": "स्टोर", "Operations": "ऑपरेशंस", "Staff": "स्टाफ", "Log out": "लॉग आउट", "Schedule {code}": "शेड्यूल {code}",
     // Queue
     "Couldn't load the queue. Try logging in again.": "कतार लोड नहीं हो सकी। फिर से लॉग इन करके देखें।",
     "Verification queue": "जाँच की कतार",

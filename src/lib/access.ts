@@ -4,7 +4,7 @@ import type { Role } from "./session";
 export const staffAccess: Array<{ prefix: string; roles: Role[] }> = [
   { prefix: "/pharmacist/queue", roles: ["PHARMACIST"] },
   { prefix: "/pharmacist/orders", roles: ["PHARMACIST"] },
-  { prefix: "/pharmacist/store", roles: ["STORE_STAFF", "PHARMACIST"] },
+  { prefix: "/pharmacist/store", roles: ["STORE_STAFF", "PHARMACIST", "OPS"] },
   { prefix: "/pharmacist/dashboard", roles: ["OPS", "PHARMACIST"] },
 ];
 

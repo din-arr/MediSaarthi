@@ -1,8 +1,9 @@
-import { cert, getApps, initializeApp } from "firebase-admin/app";
-import { getAuth } from "firebase-admin/auth";
 import type { OtpProvider } from "./provider";
 
-function firebaseAuth() {
+// Loaded only when OTP_PROVIDER=firebase, so the default (mock OTP) never pulls in firebase-admin.
+async function firebaseAuth() {
+  const { cert, getApps, initializeApp } = await import("firebase-admin/app");
+  const { getAuth } = await import("firebase-admin/auth");
   const app = getApps()[0] ?? initializeApp({
     credential: cert({
       projectId: process.env.FIREBASE_PROJECT_ID,
@@ -20,7 +21,7 @@ export class FirebaseOtpProvider implements OtpProvider {
 
   async verifyOtp(_phone: string, code: string) {
     try {
-      const decoded = await firebaseAuth().verifyIdToken(code);
+      const decoded = await (await firebaseAuth()).verifyIdToken(code);
       if (decoded.phone_number?.replace(/\D/g, "") !== _phone) throw new Error("INVALID_CODE");
     } catch {
       throw new Error("INVALID_CODE");

@@ -1,5 +1,14 @@
 /** Strings for the order, payment, cart and messages screens. */
 export const moreEn = {
+  colOrder: "Order", colFor: "For", colItems: "Items", colStatus: "Status", colStore: "Store", colDate: "Date", me: "Me",
+  chooseCity: "Choose city", kolkata: "Kolkata", howrah: "Howrah", close: "Close",
+  helpEyebrow: "MediSaarthi support", helpTitle: "Need help?", helpEmail: "Email us", helpCall: "Call your store", helpWhatsapp: "WhatsApp us", helpChat: "Chat with support",
+  helpMedical: "For medical questions, please speak to your doctor or pharmacist.",
+  faqWhereQ: "Where is my order?", faqWhereA: "Open your order to see the latest pharmacist, packing and delivery update.",
+  faqRejectQ: "Why was my prescription rejected?", faqRejectA: "A pharmacist may reject an unclear or unsafe prescription and will explain what needs changing.",
+  faqReuploadQ: "How do I re-upload?", faqReuploadA: "Open the order. If the pharmacist asked for a clearer photo, you'll see a Re-upload button there.",
+  faqWhenQ: "When will it be delivered?", faqWhenA: "Approved orders are packed by the nearest store with stock, for same-day delivery where available.",
+  faqParentsQ: "Can I order for my parents?", faqParentsA: "Yes. Add a family member and choose them when uploading or reordering.",
   needClearer: "The pharmacist needs a clearer prescription",
   uploadAgain: "Please upload the prescription again.",
   chooseNew: "Choose a new photo or PDF",
@@ -78,6 +87,15 @@ export const moreEn = {
 export type MoreStrings = Record<keyof typeof moreEn, string>;
 
 export const moreBn: MoreStrings = {
+  colOrder: "অর্ডার", colFor: "কার জন্য", colItems: "ওষুধ", colStatus: "অবস্থা", colStore: "স্টোর", colDate: "তারিখ", me: "আমি",
+  chooseCity: "শহর বেছে নিন", kolkata: "কলকাতা", howrah: "হাওড়া", close: "বন্ধ করুন",
+  helpEyebrow: "MediSaarthi সাহায্য", helpTitle: "সাহায্য লাগবে?", helpEmail: "ইমেল করুন", helpCall: "আপনার স্টোরে ফোন করুন", helpWhatsapp: "WhatsApp করুন", helpChat: "সাপোর্টের সঙ্গে চ্যাট",
+  helpMedical: "ওষুধ বা চিকিৎসার প্রশ্নে আপনার ডাক্তার বা ফার্মাসিস্টের সঙ্গে কথা বলুন।",
+  faqWhereQ: "আমার অর্ডার কোথায়?", faqWhereA: "ফার্মাসিস্ট, প্যাকিং ও ডেলিভারির সর্বশেষ খবর দেখতে অর্ডারটি খুলুন।",
+  faqRejectQ: "আমার প্রেসক্রিপশন কেন বাতিল হল?", faqRejectA: "অস্পষ্ট বা অনিরাপদ প্রেসক্রিপশন ফার্মাসিস্ট বাতিল করতে পারেন, আর কী বদলাতে হবে তা জানিয়ে দেন।",
+  faqReuploadQ: "আবার আপলোড কীভাবে করব?", faqReuploadA: "অর্ডারটি খুলুন। ফার্মাসিস্ট পরিষ্কার ছবি চাইলে সেখানে আবার আপলোডের বোতাম দেখবেন।",
+  faqWhenQ: "কবে ডেলিভারি হবে?", faqWhenA: "অনুমোদিত অর্ডার কাছের যে স্টোরে ওষুধ আছে সেখান থেকে প্যাক হয়, সম্ভব হলে সেদিনই ডেলিভারি।",
+  faqParentsQ: "বাবা-মায়ের জন্য অর্ডার করা যায়?", faqParentsA: "হ্যাঁ। পরিবারের সদস্য যোগ করুন, আর আপলোড বা রিঅর্ডারের সময় তাঁকে বেছে নিন।",
   needClearer: "ফার্মাসিস্টের আরও পরিষ্কার প্রেসক্রিপশন দরকার",
   uploadAgain: "দয়া করে প্রেসক্রিপশনটি আবার আপলোড করুন।",
   chooseNew: "নতুন ছবি বা PDF বেছে নিন",
@@ -154,6 +172,15 @@ export const moreBn: MoreStrings = {
 };
 
 export const moreHi: MoreStrings = {
+  colOrder: "ऑर्डर", colFor: "किसके लिए", colItems: "दवाएँ", colStatus: "स्थिति", colStore: "स्टोर", colDate: "तारीख़", me: "मैं",
+  chooseCity: "शहर चुनें", kolkata: "कोलकाता", howrah: "हावड़ा", close: "बंद करें",
+  helpEyebrow: "MediSaarthi सहायता", helpTitle: "मदद चाहिए?", helpEmail: "ईमेल करें", helpCall: "अपने स्टोर को फ़ोन करें", helpWhatsapp: "WhatsApp करें", helpChat: "सपोर्ट से चैट करें",
+  helpMedical: "दवा या इलाज के सवालों के लिए अपने डॉक्टर या फार्मासिस्ट से बात करें।",
+  faqWhereQ: "मेरा ऑर्डर कहाँ है?", faqWhereA: "फार्मासिस्ट, पैकिंग और डिलीवरी की ताज़ा जानकारी के लिए अपना ऑर्डर खोलें।",
+  faqRejectQ: "मेरा प्रिस्क्रिप्शन क्यों रद्द हुआ?", faqRejectA: "अस्पष्ट या असुरक्षित प्रिस्क्रिप्शन फार्मासिस्ट रद्द कर सकते हैं और बताते हैं कि क्या बदलना है।",
+  faqReuploadQ: "दोबारा अपलोड कैसे करूँ?", faqReuploadA: "ऑर्डर खोलें। अगर फार्मासिस्ट ने साफ़ तस्वीर माँगी है, तो वहाँ दोबारा अपलोड का बटन दिखेगा।",
+  faqWhenQ: "डिलीवरी कब होगी?", faqWhenA: "मंज़ूर ऑर्डर पास के उस स्टोर से पैक होते हैं जहाँ दवा है, जहाँ हो सके उसी दिन डिलीवरी।",
+  faqParentsQ: "क्या मैं माता-पिता के लिए ऑर्डर कर सकता हूँ?", faqParentsA: "हाँ। परिवार का सदस्य जोड़ें और अपलोड या दोबारा ऑर्डर करते समय उन्हें चुनें।",
   needClearer: "फ़ार्मासिस्ट को साफ़ प्रिस्क्रिप्शन चाहिए",
   uploadAgain: "कृपया प्रिस्क्रिप्शन दोबारा अपलोड करें।",
   chooseNew: "नई फ़ोटो या PDF चुनें",

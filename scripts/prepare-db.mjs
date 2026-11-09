@@ -19,6 +19,8 @@ run("npx prisma db push --skip-generate");
 
 const { PrismaClient } = await import("@prisma/client");
 const db = new PrismaClient();
-const stores = await db.store.count();
+// Rule config is written last by the seed, so if it's missing the seed never
+// finished (e.g. an earlier build stopped halfway). The seed clears old rows first.
+const finished = await db.ruleConfig.count();
 await db.$disconnect();
-if (stores === 0) run("npx tsx prisma/seed.ts");
+if (finished === 0) run("npx tsx prisma/seed.ts");

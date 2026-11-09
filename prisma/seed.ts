@@ -108,6 +108,8 @@ async function main() {
   await prisma.familyMember.deleteMany();
   await prisma.ruleConfig.deleteMany();
   await prisma.product.deleteMany();
+  await prisma.notification.deleteMany();
+  await prisma.user.updateMany({ data: { storeId: null } });
   await prisma.store.deleteMany();
   const demoUsers = [
     { id: "user_debasish", phone: "9000000001", role: UserRole.CUSTOMER, name: "Debasish Ghosh" },

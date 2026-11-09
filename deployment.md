@@ -2,6 +2,7 @@
 
 - **GitHub:** https://github.com/din-arr/MediSaarthi
 - **Live:** https://medi-saarthi-smoky.vercel.app
+- **Demo video:** https://youtu.be/cCqMJQOMDgo
 - **Hosting:** Vercel (Next.js app) + Neon (managed PostgreSQL, Singapore region)
 
 ## Demo logins
@@ -13,7 +14,7 @@ The OTP is shown on screen (test mode, no real SMS). The login screen also has o
 | 9000000001 | Customer |
 | 9000000002 | Pharmacist (registration no. WB-PH-21487) |
 | 9000000005 | Store staff (Salt Lake store) |
-| 9000000006 | Operations |
+| 9000000006 | Operations (dashboard + view-only store board) |
 
 ## Environment variables
 

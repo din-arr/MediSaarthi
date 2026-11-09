@@ -2,6 +2,23 @@
 
 ![CI](https://github.com/din-arr/MediSaarthi/actions/workflows/ci.yml/badge.svg)
 
+**Live demo: https://medi-saarthi-smoky.vercel.app** · OTP is shown on screen · tap a demo account on the login screen
+
+| Login | Role | Try this |
+|---|---|---|
+| 9000000001 | Customer | Upload a prescription, reorder, accept a generic, pay by test UPI |
+| 9000000002 | Pharmacist | Verify a prescription side by side, edit or reject items, approve H1 with register entry |
+| 9000000005 | Store staff (Salt Lake) | Pick, pack with invoice number, hand over to rider, deliver |
+| 9000000006 | Operations | All 46 stores, verification times, safety check, H1 register CSV |
+
+**Highlights**
+- Schedule H/H1/X rules enforced on the server in the same database transaction as every status change, so no screen or API call can skip a pharmacist. Rules are configurable.
+- Prescriptions encrypted with AES-256-GCM; every view is logged (DPDP). The H1 register exports as CSV.
+- AI only drafts. Generics need pharmacist approval and customer consent. No medical advice anywhere.
+- Orders route to the nearest store with stock from the daily CSV, with stock reserved atomically.
+- English, Bengali and Hindi. Light and dark mode.
+- 100+ unit and integration tests; CI fails under 90% coverage (currently about 99%).
+
 Medicine reordering for a Kolkata pharmacy chain (46 stores across Kolkata and Howrah). Customers reorder monthly medicines in a minute, a registered pharmacist checks every prescription, the nearest store with stock packs it, and customers get reminded before they run out.
 
 > Independent educational demo. Payments, SMS/WhatsApp and outside systems are mocked. Don't upload real prescriptions.

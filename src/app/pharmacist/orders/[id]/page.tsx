@@ -5,7 +5,7 @@ import type { Role } from "../../../../lib/session";
 import { ArrowLeft, Check, LoaderCircle, Lock, Maximize2, Pencil, RotateCw, X, ZoomIn, ZoomOut } from "lucide-react";
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useState, Suspense } from "react";
 import PharmacistHeader, { ScheduleBadge } from "../../../../components/pharmacist/PharmacistHeader";
 
 type Item = { id: string; productId: string; name: string; strength: string; packSize: string; schedule: string; quantity: number; originalQty: number | null; approvalStatus: "PENDING" | "APPROVED" | "EDITED" | "REJECTED"; rejectReason: string | null; confidence: number | null; otherStrengths: Array<{ id: string; strength: string; packSize: string }>; price: number; consentStatus: string; generic: { name: string; strength: string; price: number } | null };
@@ -13,7 +13,12 @@ type Order = { id: string; number: string; status: string; createdAt: string; de
 
 const rejectReasons = ["Not on the prescription", "Unreadable", "Prescription expired", "Wrong strength", "Quantity too high", "Other"];
 
+// The order id comes from the URL, so the page renders inside Suspense (needed with cacheComponents).
 export default function VerifyOrderPage() {
+  return <Suspense fallback={null}><VerifyOrder /></Suspense>;
+}
+
+function VerifyOrder() {
   const { id } = useParams<{ id: string }>();
   const router = useRouter();
   const [order, setOrder] = useState<Order | null>(null);

@@ -44,7 +44,7 @@ export async function encryptPrescription(file: File) {
 /** Decrypts a stored prescription. Only call this after checking the viewer's role. */
 export async function decryptPrescription(stored: { encryptedFilePath: string; fileData?: Uint8Array | null }) {
   const storedPath = stored.encryptedFilePath;
-  const file = stored.fileData ? Buffer.from(stored.fileData) : await readFile(path.join(process.cwd(), storedPath));
+  const file = stored.fileData ? Buffer.from(stored.fileData) : await readFile(path.join(/*turbopackIgnore: true*/ process.cwd(), storedPath));
   const iv = file.subarray(0, 12);
   const authTag = file.subarray(12, 28);
   const decipher = createDecipheriv("aes-256-gcm", key(), iv);

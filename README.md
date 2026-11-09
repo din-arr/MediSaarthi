@@ -104,7 +104,7 @@ Next.js app ── pages in src/app/**/page.tsx
    │          API in src/app/api/**/route.ts
    │
    ├─ Prisma ── SQLite locally (Postgres in production)
-   ├─ Encrypted prescriptions in /uploads (AES-256-GCM)
+   ├─ Encrypted prescriptions stored in the database (AES-256-GCM)
    └─ Mock providers: OTP, payments, SMS/WhatsApp, AI reading
 ```
 
@@ -127,7 +127,7 @@ All the rules live in `src/lib/pharmacy/rules.ts` and run **on the server** for 
 
 ## Privacy (DPDP Act 2023)
 
-- Prescriptions are encrypted with AES-256-GCM before they touch the disk, and are only decrypted for pharmacists.
+- Prescriptions are encrypted with AES-256-GCM before they are stored, and are only decrypted for pharmacists.
 - Every view is written to `PrescriptionAccessLog`. Every approve, edit and reject is written to `AuditLog`, with before and after values.
 
 ## AI
@@ -144,9 +144,11 @@ AI only drafts. It reads the prescription and suggests products and quantities w
 ## Not done yet
 
 - Real SMS/WhatsApp, payments and OTP providers (all mocked)
-- Postgres + cloud file storage for deployment
+- Object storage (S3/R2) for prescriptions at large volume
 
 ## Deploy (Vercel + Neon)
+
+Full details: [deployment.md](deployment.md).
 
 1. Create a free Postgres database on [Neon](https://neon.tech) and copy its connection string.
 2. Import this repo on Vercel and add env vars: `DATABASE_URL` (Neon string), `AUTH_SECRET` (any long random text), `PRESCRIPTION_KEY` (`openssl rand -base64 32`), optionally `OPENAI_API_KEY`.

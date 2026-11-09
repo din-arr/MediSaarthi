@@ -2,6 +2,8 @@
 
 ![CI](https://github.com/din-arr/MediSaarthi/actions/workflows/ci.yml/badge.svg)
 
+**Demo video (3 min): https://youtu.be/cCqMJQOMDgo**
+
 **Live demo: https://medi-saarthi-smoky.vercel.app** · OTP is shown on screen · tap a demo account on the login screen
 
 | Login | Role | Try this |

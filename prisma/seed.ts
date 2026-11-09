@@ -146,13 +146,16 @@ async function main() {
   }
   const stockDate = new Date();
   stockDate.setUTCHours(0, 0, 0, 0);
+  // One batched insert instead of ~2,000 single ones (matters on a remote database).
+  const stockRows = [];
   for (const storeId of storeMap.values()) {
     for (const [name] of products) {
       const gap = (storeId.charCodeAt(0) + name.length) % 17 === 0;
-      await prisma.stock.create({ data: { storeId, productId: productMap.get(name)!, qty: gap ? 0 : 12 + (name.length % 20), date: stockDate } });
+      stockRows.push({ storeId, productId: productMap.get(name)!, qty: gap ? 0 : 12 + (name.length % 20), date: stockDate });
     }
-    for (const [brand] of brands) if (productMap.get(brand)) await prisma.stock.create({ data: { storeId, productId: productMap.get(brand)!, qty: 10, date: stockDate } });
+    for (const [brand] of brands) if (productMap.get(brand)) stockRows.push({ storeId, productId: productMap.get(brand)!, qty: 10, date: stockDate });
   }
+  await prisma.stock.createMany({ data: stockRows });
   // Separate staff logins: one store team member (Salt Lake) and central operations.
   await prisma.user.upsert({ where: { phone: "9000000005" }, update: { role: UserRole.STORE_STAFF, name: "Sourav Das", storeId: storeMap.get("Salt Lake") }, create: { id: "user_store", phone: "9000000005", role: UserRole.STORE_STAFF, name: "Sourav Das", storeId: storeMap.get("Salt Lake") } });
   await prisma.user.upsert({ where: { phone: "9000000006" }, update: { role: UserRole.OPS, name: "Priya Banerjee" }, create: { id: "user_ops", phone: "9000000006", role: UserRole.OPS, name: "Priya Banerjee" } });
@@ -172,7 +175,7 @@ async function main() {
   pincodeRows.get("700034")!.area = "Behala";
   pincodeRows.get("700064")!.area = "Salt Lake";
   pincodeRows.get("711101")!.area = "Howrah Maidan";
-  for (const row of pincodeRows.values()) await prisma.pincode.create({ data: row });
+  await prisma.pincode.createMany({ data: [...pincodeRows.values()] });
   await prisma.address.create({ data: { userId: customer.id, familyMemberId: mother.id, label: "Home", recipientName: "Madhabi Ghosh", phone: "9000000001", line1: "12 Lake View Road", line2: "Near Salt Lake Stadium", area: "Salt Lake", city: "Kolkata", pincode: "700064", lat: 22.5867, lng: 88.417, isDefault: true } });
   await prisma.address.create({ data: { userId: rina.id, label: "Home", recipientName: "Rina Sen", phone: "9000000003", line1: "8 Diamond Harbour Road", line2: "Near Behala Tram Depot", area: "Behala", city: "Kolkata", pincode: "700034", lat: 22.497, lng: 88.31, isDefault: true } });
   await prisma.address.create({ data: { userId: arif.id, label: "Home", recipientName: "Arif Mondal", phone: "9000000004", line1: "21 Station Road", line2: "Near Howrah Maidan", area: "Howrah Maidan", city: "Howrah", pincode: "711101", lat: 22.585, lng: 88.342, isDefault: true } });

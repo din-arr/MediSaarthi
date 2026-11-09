@@ -1,12 +1,14 @@
 import { NextResponse } from "next/server";
 import { prisma } from "../../../../lib/prisma";
 import { requirePharmacist } from "../../../../lib/pharmacy/auth";
+import { freshenDemoOrders } from "../../../../lib/demo";
 
 const rank = { OTC: 0, H: 1, H1: 2, X: 3 } as const;
 
 export async function GET() {
   const auth = await requirePharmacist();
   if ("error" in auth) return auth.error;
+  await freshenDemoOrders(prisma);
   const startOfDay = new Date(); startOfDay.setHours(0, 0, 0, 0);
   const [waiting, decidedToday] = await Promise.all([
     prisma.order.findMany({
